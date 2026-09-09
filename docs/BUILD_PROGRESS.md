@@ -137,10 +137,40 @@
    - **Known limitations:** QuickCart integration lacks the backend (QuickCart not implemented yet).
    - **What is intentionally deferred:** LLM ClaimCompiler, UI, DB persistence.
 
+## Step 5A — Experiment Executor / Orchestration Pipeline
+   - **Objective:** Connect the contracts, browser layer, engines, and verifier deterministically into a single end-to-end generic pipeline.
+   - **What was implemented:**
+     - Created `@realitycheck/executor` package for execution orchestration.
+     - Implemented `ExperimentExecutor.executeBoundaryExperiment()`.
+     - Validates `ExperimentSpec` structurally before touching the browser.
+     - Injects `SiteAdapter` cleanly ensuring 0 QuickCart leakage into the execution core.
+     - Routes the sequential flow: `Spec` -> `BrowserRunner` -> `Observation[]` -> `BoundaryEngine` -> `DeterministicVerifier` -> `ExecutionResult`.
+     - Ensures "fail-closed" semantics through the entire chain (invalid specs abort early; browser crashes yield INCONCLUSIVE safely).
+   - **Files created/modified:**
+     - `packages/executor/package.json`
+     - `packages/executor/src/ExperimentExecutor.ts`
+     - `packages/executor/src/ExperimentExecutor.test.ts`
+     - `packages/executor/src/index.ts`
+     - `docs/ARCHITECTURE.md`
+   - **Domain/Data Flow:** 
+     `ExperimentSpec` + `SiteAdapter` → `ExperimentExecutor` → `BrowserRunner` → `Observation[]` → `BoundaryEngine` → `DeterministicVerifier` → `Verdict`
+   - **Supported semantics:** Deterministic end-to-end execution of a Numeric Threshold Boundary experiment without LLMs.
+   - **Test fixtures:**
+     - A. HONEST -> SUPPORTED
+     - B. CONTRADICTED -> CONTRADICTED
+     - C. INCONCLUSIVE -> INCONCLUSIVE
+     - D. INVALID SPEC -> Safely aborted, INCONCLUSIVE
+     - E. BROWSER FAILURE -> Safely failed closed, INCONCLUSIVE
+     - F. Data Flow -> Proved delegation to Engine and Verifier via spies
+   - **Test results:** All 32 unit tests passed flawlessly.
+   - **Typecheck results:** `npm run typecheck` returned 0 errors across all monorepo packages.
+   - **Known limitations:** Execution expects an array of explicit probe states (e.g. `[999, 1050]`) which a future intelligent LLM will need to generate.
+   - **What is intentionally deferred:** LLM ClaimCompiler, UI, DB persistence.
+
 ## Current Status
-- Current phase: Browser
-- Current step: Step 4
-- Overall completion estimate: 40%
+- Current phase: Executor
+- Current step: Step 5A
+- Overall completion estimate: 55%
 
 ## Next Step
-Ready for Step 5.
+Ready for Step 5B / 6.

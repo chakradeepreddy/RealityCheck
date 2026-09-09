@@ -1,0 +1,11 @@
+{
+  "name": "@realitycheck/executor",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "dependencies": {
+    "@realitycheck/contracts": "*",
+    "@realitycheck/engines": "*",
+    "@realitycheck/verifier": "*",
+    "@realitycheck/browser": "*"
+  }
+}
