@@ -23,13 +23,16 @@ export const ExperimentSpecSchema = z.object({
       quantity: z.number().int().positive()
     })).optional(),
     cartSubtotalTarget: z.number().positive().optional(),
+    canaryInputTarget: z.string().optional(),
+    allowedDestinations: z.array(z.string()).optional()
   }),
   expectedObservables: z.object({
     shippingCost: z.number().optional(),
     discountApplied: z.boolean().optional(),
     discountValue: z.number().optional(),
     feeApplied: z.boolean().optional(),
-    feeValue: z.number().optional()
+    feeValue: z.number().optional(),
+    markerLeakObserved: z.boolean().optional()
   })
 });
 

@@ -28,4 +28,9 @@ export interface SiteAdapter<TPage = any> {
    * Instructs the adapter to read the current DOM/network state and return an Observation.
    */
   observeState(page: TPage, url: string): Promise<Observation>;
+
+  /**
+   * Instructs the adapter to plant a unique marker in the specified target input.
+   */
+  plantCanaryMarker?(page: TPage, target: string, marker: string): Promise<void>;
 }

@@ -74,12 +74,20 @@ export class RealityCheckOrchestrator {
       const spec = await compiler.compileClaim(claim, targetUrl);
       manifest.experimentSpec = spec;
       manifest.expectedObservables = spec.expectedObservables;
+      manifest.primitive = spec.primitive;
       
       // Update DB with compiled spec immediately before execution
       await this.repository.saveRun(manifest, ExecutionStatusEnum.RUNNING, VerdictEnum.INCONCLUSIVE, 'Executing browser tests...');
 
       // Execute
-      const result = await ExperimentExecutor.executeBoundaryExperiment(spec, adapter);
+      let result: ExecutionResult;
+      if (spec.primitive === 'BOUNDARY') {
+        result = await ExperimentExecutor.executeBoundaryExperiment(spec, adapter);
+      } else if (spec.primitive === 'CANARY') {
+        result = await ExperimentExecutor.executeCanaryExperiment(spec, adapter);
+      } else {
+        throw new Error(`Unsupported primitive: ${spec.primitive}`);
+      }
       
       // Save Result
       await this.repository.saveRun(
@@ -159,7 +167,14 @@ export class RealityCheckOrchestrator {
 
     try {
       // Execute (Bypassing ClaimCompiler)
-      const result = await ExperimentExecutor.executeBoundaryExperiment(parsedSpec, adapter);
+      let result: ExecutionResult;
+      if (parsedSpec.primitive === 'BOUNDARY') {
+        result = await ExperimentExecutor.executeBoundaryExperiment(parsedSpec, adapter);
+      } else if (parsedSpec.primitive === 'CANARY') {
+        result = await ExperimentExecutor.executeCanaryExperiment(parsedSpec, adapter);
+      } else {
+        throw new Error(`Unsupported primitive: ${parsedSpec.primitive}`);
+      }
       
       // Save Result
       await this.repository.saveRun(

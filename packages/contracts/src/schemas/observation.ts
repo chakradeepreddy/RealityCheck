@@ -29,6 +29,13 @@ export const ObservationSchema = z.object({
   
   // Can include specific markers found by canary test
   canaryMarkers: z.array(z.string()).optional(),
+  
+  // Can include specific network leaks
+  canaryNetworkObservations: z.array(z.object({
+    url: z.string().url(),
+    method: z.string(),
+    markerFound: z.boolean()
+  })).optional(),
 
   // References to evidence stored elsewhere
   evidenceRefs: z.object({

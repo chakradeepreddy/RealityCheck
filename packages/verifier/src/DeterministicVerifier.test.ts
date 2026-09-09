@@ -128,3 +128,53 @@ describe('DeterministicVerifier', () => {
     expect(result1.reason).toBe(result2.reason);
   });
 });
+
+describe('DeterministicVerifier - Canary', () => {
+  const createCanarySpec = (allowedDestinations: string[]): ExperimentSpec => ({
+    schemaVersion: '1.0.0',
+    primitive: 'CANARY',
+    targetUrl: 'https://example.com',
+    testConditions: {
+      canaryInputTarget: 'email',
+      allowedDestinations
+    },
+    expectedObservables: {
+      markerLeakObserved: false
+    }
+  });
+
+  it('Returns SUPPORTED when no forbidden leaks occur', () => {
+    const spec = createCanarySpec(['allowed.com']);
+    const observations = [
+      { url: 'https://allowed.com/api', method: 'POST', markerFound: true },
+      { url: 'https://other.com/api', method: 'GET', markerFound: false }
+    ];
+
+    const result = DeterministicVerifier.verifyCanary(spec, observations);
+    expect(result.verdict).toBe('SUPPORTED');
+  });
+
+  it('Returns CONTRADICTED when marker leaks to forbidden destination', () => {
+    const spec = createCanarySpec(['allowed.com']);
+    const observations = [
+      { url: 'https://allowed.com/api', method: 'POST', markerFound: true },
+      { url: 'https://evil.com/leak', method: 'POST', markerFound: true }
+    ];
+
+    const result = DeterministicVerifier.verifyCanary(spec, observations);
+    expect(result.verdict).toBe('CONTRADICTED');
+    expect(result.reason).toContain('evil.com');
+  });
+
+  it('Returns INCONCLUSIVE if primitive is not CANARY', () => {
+    const spec = createSpec(999, 'NUMERIC_THRESHOLD', 'BOUNDARY'); // Boundary spec
+    const result = DeterministicVerifier.verifyCanary(spec, []);
+    expect(result.verdict).toBe('INCONCLUSIVE');
+  });
+
+  it('Returns INCONCLUSIVE if no network observations are provided', () => {
+    const spec = createCanarySpec(['allowed.com']);
+    const result = DeterministicVerifier.verifyCanary(spec, []);
+    expect(result.verdict).toBe('INCONCLUSIVE');
+  });
+});

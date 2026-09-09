@@ -71,7 +71,7 @@ describe('RealityCheckOrchestrator', () => {
 
     it('successfully executes a new run', async () => {
       adapter.supports.mockReturnValue(true);
-      compiler.compileClaim.mockResolvedValue({ expectedObservables: {} });
+      compiler.compileClaim.mockResolvedValue({ primitive: 'BOUNDARY', expectedObservables: {} });
 
       const result = await orchestrator.runNewExperiment('claim', 'https://example.com', adapter, compiler);
 
@@ -99,7 +99,7 @@ describe('RealityCheckOrchestrator', () => {
         claim: 'claim',
         targetUrl: 'https://example.com',
         primitive: 'BOUNDARY',
-        experimentSpec: '{"expectedObservables":{}}',
+        experimentSpec: '{"primitive": "BOUNDARY", "expectedObservables":{}}',
         browserEnvironment: '{}',
         testConditions: '{}'
       });

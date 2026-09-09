@@ -41,6 +41,26 @@ export class ExperimentRepository {
       browserEnvironment: JSON.stringify(manifest.browserEnvironment),
       testConditions: JSON.stringify(manifest.testConditions),
       experimentSpec: JSON.stringify(manifest.experimentSpec)
+    }).onConflictDoUpdate({
+      target: schema.runs.id,
+      set: {
+        schemaVersion: manifest.schemaVersion,
+        claim: manifest.claim,
+        targetUrl: manifest.targetUrl,
+        primitive: manifest.primitive,
+        executionMode: manifest.executionMode,
+        adapter: manifest.adapter,
+        adapterVersion: manifest.adapterVersion,
+        status,
+        verdict,
+        verdictReason: verdictReason || null,
+        claimedBoundary: claimedBoundary ?? null,
+        observedBoundary: observedBoundary ?? null,
+        browserEnvironment: JSON.stringify(manifest.browserEnvironment),
+        testConditions: JSON.stringify(manifest.testConditions),
+        experimentSpec: JSON.stringify(manifest.experimentSpec),
+        completedAt: status === 'COMPLETED' || status === 'FAILED' ? new Date().toISOString() : null
+      }
     });
   }
 

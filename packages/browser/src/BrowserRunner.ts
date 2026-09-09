@@ -75,4 +75,70 @@ export class BrowserRunner {
 
     return observations;
   }
+
+  /**
+   * Run a canary network observation experiment.
+   */
+  async runCanaryObservation(
+    spec: ExperimentSpec,
+    adapter: SiteAdapter<Page>,
+    targetUrl: string,
+    target: string,
+    marker: string
+  ): Promise<Observation[]> {
+    if (!this.browser) {
+      throw new Error("BrowserRunner is not initialized.");
+    }
+    if (!adapter.plantCanaryMarker) {
+      throw new Error(`Adapter ${adapter.id} does not support planting canary markers.`);
+    }
+
+    const context = await this.browser.newContext();
+    const page = await context.newPage();
+    const networkObservations: { url: string, method: string, markerFound: boolean }[] = [];
+
+    // Attach network listener
+    page.on('request', request => {
+      const url = request.url();
+      const method = request.method();
+      const headers = JSON.stringify(request.headers());
+      const postData = request.postData() || '';
+
+      const markerFound = url.includes(marker) || headers.includes(marker) || postData.includes(marker);
+      
+      networkObservations.push({
+        url,
+        method,
+        markerFound
+      });
+    });
+
+    try {
+      // 1. Navigate to the initial page
+      await adapter.navigate(page, targetUrl);
+
+      // 2. Plant the marker
+      await adapter.plantCanaryMarker(page, target, marker);
+
+      // 3. Wait for network to stabilize
+      try {
+        await page.waitForLoadState('networkidle', { timeout: 5000 });
+      } catch (e) {
+        // Ignore timeout if page doesn't reach network idle perfectly
+      }
+      
+      // We also take a regular observation for evidence
+      const observation = await adapter.observeState(page, page.url());
+      observation.canaryNetworkObservations = networkObservations;
+      return [observation];
+
+    } catch (err: any) {
+      console.warn(`Failed to execute canary run:`, err);
+      // Return empty observation list on catastrophic failure (Fail Closed)
+      return [];
+    } finally {
+      await page.close();
+      await context.close();
+    }
+  }
 }

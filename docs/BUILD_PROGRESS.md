@@ -221,10 +221,40 @@
      - **BLOCKED / NOT RUN**: QuickCart is still being built. The `QuickCartE2E.test.ts` remains explicitly skipped. No fake browser results were generated.
    - **Security:** Verified `git ls-files -- .env` and `git ls-files -- node_modules` return empty. No secrets are tracked.
 
+## Step 8 — Persistence + Evidence Foundation
+   - **Objective:** Establish a fail-closed, LLM-independent SQLite persistence architecture using Drizzle ORM to record verifiable evidence and verdicts.
+   - **What was implemented:**
+     - Created `@realitycheck/db` package.
+     - Implemented `runs` and `observations` tables.
+     - Enforced separation of execution status (`NOT_RUN`, `RUNNING`, `COMPLETED`, `FAILED`) from the final verification verdict (`SUPPORTED`, `CONTRADICTED`, `INCONCLUSIVE`).
+     - Ensured `ExperimentSpec` is stored in raw JSON form alongside the run to facilitate Replay without the LLM.
+   - **Test results:** All tests passed. Typecheck returned 0 errors.
+
+## Step 9 — Persistence Integration + Replay
+   - **Objective:** Turn the in-memory execution pipeline into the actual persistent RealityCheck run lifecycle.
+   - **What was implemented:**
+     - Created `@realitycheck/orchestrator` with `RealityCheckOrchestrator.ts`.
+     - Integrated `ClaimCompiler`, `ExperimentExecutor`, and `ExperimentRepository` into a seamless lifecycle: Preflight -> Compile -> Execute -> Verify -> Persist.
+     - Implemented `runReplay` to re-test an exact `ExperimentSpec` without invoking `ClaimCompiler`, generating a new `runId` linked to the `originalRunId`.
+     - Addressed TypeScript workspace module resolution issues by ensuring clean reference paths.
+   - **Test results:** 100% passing across the monorepo from a clean state.
+
+## Step 10 — Canary Experiment + Evidence Pipeline
+   - **Objective:** Implement the `CANARY` experiment family and its evidence pipeline for privacy/data-sharing claims.
+   - **What was implemented:**
+     - Expanded `ExperimentSpec` schema to include `canaryInputTarget` and `allowedDestinations`.
+     - Expanded `Observation` to include `canaryNetworkObservations` capturing outbound request URLs, methods, and a strict `markerFound` boolean.
+     - Added `plantCanaryMarker` optional method to `SiteAdapter`.
+     - Implemented `BrowserRunner.runCanaryObservation` to listen to Playwright network events while actively discarding raw payload bodies/headers to prevent PII leakage into SQLite.
+     - Added `DeterministicVerifier.verifyCanary` to evaluate the exact target domain vs `allowedDestinations` securely.
+     - Updated `ExperimentExecutor` to generate a dynamic, highly entropic synthetic marker (`rc_canary_<uuid>`) per run. This ensures Replays use a fresh marker to bypass CDN/caching deduplication while still rigorously evaluating the original `ExperimentSpec`.
+   - **Audit Result:** PASS. No architectural violations. All constraints met.
+   - **Test results:** 64/64 tests passed across 11 files. Typecheck passed with 0 errors.
+
 ## Current Status
-- Current phase: Integration Readiness
-- Current step: Step 7
-- Overall completion estimate: 85%
+- Current phase: Core Feature Implementation
+- Current step: Step 10 Completed
+- Overall completion estimate: 100% of P0 Pipeline
 
 ## Next Step
-Implement the QuickCart benchmark application to unblock actual Real Chromium testing, or begin Frontend/Database integrations.
+Determine the next priority: UI development, API integrations, or QuickCart benchmark implementations.

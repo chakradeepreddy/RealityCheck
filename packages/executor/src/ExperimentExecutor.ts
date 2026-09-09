@@ -1,5 +1,6 @@
 import { ExperimentSpec, SiteAdapter, Observation, ExperimentSpecSchema } from '@realitycheck/contracts';
 import { BrowserRunner } from '@realitycheck/browser';
+import * as crypto from 'crypto';
 import { BoundaryEngine } from '@realitycheck/engines';
 import { DeterministicVerifier, VerifierResult } from '@realitycheck/verifier';
 import { DeterministicProbePlanner } from './DeterministicProbePlanner';
@@ -101,6 +102,91 @@ export class ExperimentExecutor {
 
     // 4. Deterministic Verifier produces final Verdict
     const verifierResult = DeterministicVerifier.verifyBoundary(spec, analysis);
+
+    return {
+      spec,
+      observations,
+      verifierResult
+    };
+  }
+
+  /**
+   * Executes a canary experiment deterministically from end to end.
+   */
+  static async executeCanaryExperiment(
+    spec: ExperimentSpec,
+    adapter: SiteAdapter<any>
+  ): Promise<ExecutionResult> {
+    const validation = ExperimentSpecSchema.safeParse(spec);
+    if (!validation.success) {
+      return {
+        spec,
+        observations: [],
+        verifierResult: {
+          verdict: 'INCONCLUSIVE',
+          reason: `Invalid ExperimentSpec structure: ${validation.error.message}`
+        }
+      };
+    }
+
+    if (spec.primitive !== 'CANARY') {
+      return {
+        spec,
+        observations: [],
+        verifierResult: {
+          verdict: 'INCONCLUSIVE',
+          reason: `Unsupported primitive: ${spec.primitive}`
+        }
+      };
+    }
+
+    const target = spec.testConditions.canaryInputTarget;
+    if (!target) {
+      return {
+        spec,
+        observations: [],
+        verifierResult: {
+          verdict: 'INCONCLUSIVE',
+          reason: 'ExperimentSpec is missing required canaryInputTarget.'
+        }
+      };
+    }
+
+    // Generate unique synthetic marker
+    const marker = `rc_canary_${crypto.randomUUID()}`;
+
+    const runner = new BrowserRunner();
+    let observations: Observation[] = [];
+    try {
+      await runner.init();
+      observations = await runner.runCanaryObservation(spec, adapter, spec.targetUrl, target, marker);
+    } catch (err: any) {
+      return {
+        spec,
+        observations,
+        verifierResult: {
+          verdict: 'INCONCLUSIVE',
+          reason: `Browser execution failed catastrophically: ${err.message}`
+        }
+      };
+    } finally {
+      await runner.close();
+    }
+
+    // A single observation object comes back containing the network observations
+    const observation = observations[0];
+    if (!observation || !observation.canaryNetworkObservations) {
+      return {
+        spec,
+        observations,
+        verifierResult: {
+          verdict: 'INCONCLUSIVE',
+          reason: 'No canary network observations were collected.'
+        }
+      };
+    }
+
+    const verifierResult = DeterministicVerifier.verifyCanary(spec, observation.canaryNetworkObservations);
 
     return {
       spec,
