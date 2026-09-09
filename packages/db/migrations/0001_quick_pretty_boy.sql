@@ -1,0 +1,1 @@
+ALTER TABLE `runs` ADD `original_run_id` text;

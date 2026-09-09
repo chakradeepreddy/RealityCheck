@@ -6,6 +6,7 @@ export interface RunManifest {
   runId: string;
   claim: string;
   targetUrl: string;
+  originalRunId?: string;
   
   primitive: 'BOUNDARY' | 'CANARY';
   executionMode: ExecutionMode;
