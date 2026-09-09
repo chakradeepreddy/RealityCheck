@@ -6,6 +6,7 @@ import { EvidencePanel } from '../components/EvidencePanel';
 import { ReplayAction } from '../components/ReplayAction';
 import { apiClient } from '../api/client';
 import type { Run, ExecutionMode } from '../api/types';
+import { API_BASE_URL } from '../config';
 
 export function RunDetailsPage() {
   const { runId } = useParams<{ runId: string }>();
@@ -138,8 +139,8 @@ export function RunDetailsPage() {
                 {currentRun.observations.map((obs, idx) => (
                   <div key={idx} className="border border-slate-200 rounded-lg overflow-hidden bg-white">
                     {obs.evidenceRefs?.screenshotPath ? (
-                      <a href={`http://127.0.0.1:3001/evidence/${obs.evidenceRefs.screenshotPath}`} target="_blank" rel="noopener noreferrer" className="block aspect-video bg-slate-100 border-b border-slate-200 relative group">
-                        <img src={`http://127.0.0.1:3001/evidence/${obs.evidenceRefs.screenshotPath}`} alt={`Observation ${idx}`} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
+                      <a href={`${API_BASE_URL}/evidence/${obs.evidenceRefs.screenshotPath}`} target="_blank" rel="noopener noreferrer" className="block aspect-video bg-slate-100 border-b border-slate-200 relative group">
+                        <img src={`${API_BASE_URL}/evidence/${obs.evidenceRefs.screenshotPath}`} alt={`Observation ${idx}`} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
                           <span className="opacity-0 group-hover:opacity-100 bg-black/75 text-white text-xs px-2 py-1 rounded">View Screenshot</span>
                         </div>
@@ -180,8 +181,8 @@ export function RunDetailsPage() {
                 <div className="bg-purple-50 border border-purple-100 rounded-lg p-4 mb-3">
                   <p className="text-sm text-purple-800 font-medium">User-provided claim context — not used to determine verdict.</p>
                 </div>
-                <a href={`http://127.0.0.1:3001/evidence/${currentRun.claimAttachmentPath}`} target="_blank" rel="noopener noreferrer" className="block max-w-sm rounded-lg overflow-hidden border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-                  <img src={`http://127.0.0.1:3001/evidence/${currentRun.claimAttachmentPath}`} alt="Claim Reference" className="w-full h-auto" />
+                <a href={`${API_BASE_URL}/evidence/${currentRun.claimAttachmentPath}`} target="_blank" rel="noopener noreferrer" className="block max-w-sm rounded-lg overflow-hidden border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                  <img src={`${API_BASE_URL}/evidence/${currentRun.claimAttachmentPath}`} alt="Claim Reference" className="w-full h-auto" />
                 </a>
               </section>
             </>

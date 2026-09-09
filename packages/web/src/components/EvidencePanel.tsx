@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Run } from '../api/types';
 import { ShieldAlert, Fingerprint, Activity } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 interface EvidencePanelProps {
   run: Run;
