@@ -10,7 +10,10 @@
     "resolveJsonModule": true,
     "types": ["node"],
     "outDir": "./dist",
-    "declaration": true
+    "declaration": true,
+    "paths": {
+      "@realitycheck/*": ["./packages/*/src"]
+    }
   },
   "include": ["packages/**/*.ts", "apps/**/*.ts"],
   "exclude": ["node_modules"]
