@@ -251,10 +251,20 @@
    - **Audit Result:** PASS. No architectural violations. All constraints met.
    - **Test results:** 64/64 tests passed across 11 files. Typecheck passed with 0 errors.
 
+## Step 11A — API Foundation
+   - **Objective:** Create the Fastify API package to serve as the thin HTTP boundary between the React UI and the RealityCheck orchestrator.
+   - **What was implemented:**
+     - Created `@realitycheck/api` package using `fastify` v5.
+     - Implemented `buildApp` factory to cleanly instantiate the server without opening network ports, enabling pure deterministic tests.
+     - Implemented `GET /health` returning `{ status: 'ok' }`.
+     - Created isolated server entrypoint listening on `127.0.0.1:3001` (specifically avoiding port 3000 to keep it open for QuickCart).
+     - Kept dependencies thin: no LLM, DB, or orchestrator injection yet.
+   - **Test results:** `npm test` successfully injected and verified `GET /health` with 200 OK. `npm run typecheck` returned 0 errors. The server also manually passed a curl test locally.
+
 ## Current Status
-- Current phase: Core Feature Implementation
-- Current step: Step 10 Completed
-- Overall completion estimate: 100% of P0 Pipeline
+- Current phase: API Layer Implementation
+- Current step: Step 11A Completed
+- Overall completion estimate: 100% of P0 Pipeline + Step 11A API Foundation
 
 ## Next Step
 Determine the next priority: UI development, API integrations, or QuickCart benchmark implementations.
