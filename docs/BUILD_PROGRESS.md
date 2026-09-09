@@ -60,5 +60,63 @@
 - Web application interface.
 - Backend API.
 
+## Step 2 — Boundary Engine v1
+   - **Objective:** Build a deterministic numeric-threshold Boundary Engine to compute transitions based on raw observations, independent of a browser or LLM.
+   - **What was implemented:**
+     - Created `packages/engines` package in the monorepo.
+     - Implemented `BoundaryEngine` with pure deterministic logic (`analyzeNumericThreshold`).
+     - Designed the analysis to evaluate sorting, bounds, transitions, and fail-closed missing data constraints.
+     - Wrote deterministic Vitest test fixtures explicitly matching the A, B, C criteria outlined.
+   - **Files created/modified:**
+     - `packages/engines/package.json`
+     - `packages/engines/src/BoundaryEngine.ts`
+     - `packages/engines/src/BoundaryEngine.test.ts`
+     - `packages/engines/src/index.ts`
+     - `docs/ARCHITECTURE.md`
+     - `docs/BUILD_PROGRESS.md`
+   - **Domain/Data Flow:** `Observation[]` → `BoundaryEngine` → `BoundaryAnalysisResult`.
+   - **Supported boundary form:** Numeric-threshold (specifically `cartSubtotal` vs `shippingCost`).
+   - **Test fixtures:**
+     - Fixture A: Contradictory Shipping (discovers 1050).
+     - Fixture B: Honest Shipping (discovers 999).
+     - Fixture C: Insufficient Evidence (no transition above).
+   - **Test results:** All tests passed perfectly. The logic safely handled edge cases (unsorted, duplicates, missing observations, non-monotonic data).
+   - **Typecheck results:** `npm run typecheck` returned 0 errors.
+   - **Known limitations:** Only supports `>=` (numeric threshold).
+   - **What is intentionally deferred:** Playwright, LLM, Verifier, database, canary.
+
+## Step 3 — Deterministic Verifier v1
+   - **Objective:** Build the deterministic domain logic that compares the original ExperimentSpec against the established BoundaryAnalysisResult to assign a final Verdict.
+   - **What was implemented:**
+     - Created `packages/verifier` package in the monorepo.
+     - Implemented `DeterministicVerifier.verifyBoundary()`.
+     - Architected strict separation between finding the boundary (Engine) vs interpreting it (Verifier).
+     - Ensured "fail-closed" semantics: any missing thresholds, invalid primitives, or missing boundary analysis returns `INCONCLUSIVE`.
+     - Structured output explicitly including the exact reason generated from deterministic comparison (no LLM).
+   - **Files created/modified:**
+     - `packages/verifier/package.json`
+     - `packages/verifier/src/DeterministicVerifier.ts`
+     - `packages/verifier/src/DeterministicVerifier.test.ts`
+     - `packages/verifier/src/index.ts`
+     - `docs/ARCHITECTURE.md`
+     - `docs/BUILD_PROGRESS.md`
+   - **Domain/Data Flow:** `ExperimentSpec` + `BoundaryAnalysisResult` → `DeterministicVerifier` → `VerifierResult` (Verdict + Reason).
+   - **Supported semantics:** Numeric-threshold exact match validation (`>=` primitive assumption mapped to exact crossover verification).
+   - **Test fixtures:**
+     - Fixture A: HONEST -> SUPPORTED.
+     - Fixture B: CONTRADICTED (observed higher threshold).
+     - Fixture C: INCONCLUSIVE (boundary not established).
+     - Fixture D: EARLIER OBSERVED BOUNDARY -> CONTRADICTED (rigid mismatch).
+     - Edge Cases: INSUFFICIENT_OBSERVATIONS, missing parameters, and unsupported primitive handling to enforce fail-closed design.
+   - **Test results:** 10/10 tests passed flawlessly and deterministically.
+   - **Typecheck results:** `npm run typecheck` returned 0 errors.
+   - **Known limitations:** Only evaluates exact integer match validation for the boundary; tolerances are explicitly skipped right now.
+   - **What is intentionally deferred:** Real LLM integration, Playwright execution, actual SiteAdapter creation, Database integration.
+
+## Current Status
+- Current phase: Verifier
+- Current step: Step 3
+- Overall completion estimate: 25%
+
 ## Next Step
-Ready for Step 2.
+Ready for Step 4.

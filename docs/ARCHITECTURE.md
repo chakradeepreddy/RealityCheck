@@ -20,15 +20,23 @@ To enforce safety and correctness, the system explicitly separates LLM logic fro
 
 By isolating the LLM behind the `ClaimCompiler` boundary, we guarantee that the LLM cannot hallucinate successes or manipulate the browser in unsafe ways.
 
+### Boundary Engine vs Verifier Responsibilities
+A critical architectural separation exists between observation processing and final decision making:
+- **Boundary Engine**: "Where did the observed transition occur?" (Purely analyzes raw browser data into a boundary result).
+- **Verifier**: "Does that observed transition satisfy the claim?" (Strictly compares the engine's result against the original ExperimentSpec).
+
+### Fail-Closed Behavior
+RealityCheck operates with strict fail-closed philosophy. If evidence is missing, boundary analysis is inconclusive, or fields do not match, the Verifier defaults to **INCONCLUSIVE**. It never guesses or assumes missing context.
+
 ## Major Modules
 Conceptually, the system is organized into the following areas:
 
 - **Frontend**: React + Vite + Tailwind for the user dashboard.
 - **Backend**: Node.js + Fastify for the API.
 - **Contracts**: Zod-based typed schemas for `ExperimentSpec` and `Observation`.
-- **Experiment Engines**: The Boundary and Canary logic that drives experiments.
+- **Experiment Engines**: The Boundary Engine computes deterministic transitions from observations. It operates on a coarse-to-fine probe strategy and does NOT determine the final verdict.
 - **Browser Automation**: Playwright + Chromium.
-- **Verifier**: Deterministic typescript logic to analyze observations.
+- **Verifier**: Deterministic typescript logic to analyze boundary engine outputs against the original claim.
 - **Persistence & Evidence**: SQLite + Drizzle, storing structured JSON and file-system paths for traces/screenshots.
 
 ## Contract-First Approach
