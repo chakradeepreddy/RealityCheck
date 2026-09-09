@@ -5,6 +5,7 @@ export interface RunManifest {
   schemaVersion: '1.0.0';
   runId: string;
   claim: string;
+  claimAttachmentPath?: string;
   targetUrl: string;
   originalRunId?: string;
   

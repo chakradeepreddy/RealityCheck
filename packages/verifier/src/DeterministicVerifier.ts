@@ -15,22 +15,30 @@ export class DeterministicVerifier {
    * 
    * This logic is purely deterministic and does NOT rely on LLMs or browser context.
    */
-  static verifyBoundary(spec: ExperimentSpec, analysis: BoundaryAnalysisResult): VerifierResult {
+  static verifyBoundary(spec: ExperimentSpec, analysis: BoundaryAnalysisResult, expectedTarget: number): VerifierResult {
     // 1. Validate spec semantics
-    if (spec.primitive !== 'BOUNDARY' || spec.boundaryType !== 'NUMERIC_THRESHOLD') {
+    if (spec.primitive !== 'BOUNDARY') {
       return {
         verdict: VerdictEnum.INCONCLUSIVE,
-        reason: 'Unsupported experiment primitive or boundary type for this verifier version.'
+        reason: 'Unsupported experiment primitive for this verifier version.'
       };
     }
 
-    const claimedBoundary = spec.testConditions.cartSubtotalTarget;
-    if (claimedBoundary === undefined) {
+    if (spec.boundaryType !== 'NUMERIC_THRESHOLD' && spec.boundaryType !== 'QUANTITY_DISCOUNT') {
       return {
         verdict: VerdictEnum.INCONCLUSIVE,
-        reason: 'ExperimentSpec is missing the required claimed threshold (cartSubtotalTarget).'
+        reason: 'Unsupported boundary type for this verifier version.'
       };
     }
+
+    if (expectedTarget === undefined || expectedTarget === null) {
+      return {
+        verdict: VerdictEnum.INCONCLUSIVE,
+        reason: 'Execution was missing the required claimed threshold to verify against.'
+      };
+    }
+
+    const claimedBoundary = expectedTarget;
 
     // 2. Evaluate boundary analysis status
     if (analysis.status === 'INSUFFICIENT_OBSERVATIONS') {
@@ -64,14 +72,14 @@ export class DeterministicVerifier {
         verdict: VerdictEnum.SUPPORTED,
         claimedBoundary,
         observedBoundary,
-        reason: `Observed free-shipping transition matches the claimed threshold of ₹${claimedBoundary}.`
+        reason: `Observed transition matches the claimed threshold of ${claimedBoundary}.`
       };
     } else {
       return {
         verdict: VerdictEnum.CONTRADICTED,
         claimedBoundary,
         observedBoundary,
-        reason: `Claimed free-shipping threshold is ₹${claimedBoundary}, but observed free shipping begins at ₹${observedBoundary}.`
+        reason: `Claimed threshold is ${claimedBoundary}, but observed transition begins at ${observedBoundary}.`
       };
     }
   }

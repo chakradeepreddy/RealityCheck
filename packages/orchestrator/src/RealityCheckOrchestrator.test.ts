@@ -59,13 +59,15 @@ describe('RealityCheckOrchestrator', () => {
       adapter.supports.mockReturnValue(true);
       compiler.compileClaim.mockRejectedValue(new Error('Groq API Error'));
 
-      await expect(orchestrator.runNewExperiment('claim', 'https://example.com', adapter, compiler)).rejects.toThrow('Groq API Error');
+      const result = await orchestrator.runNewExperiment('claim', 'https://example.com', adapter, compiler);
+      expect(result.verifierResult.verdict).toBe(VerdictEnum.INCONCLUSIVE);
+      expect(result.verifierResult.reason).toContain('Claim cannot be mapped to a supported experiment: Groq API Error');
 
       expect(repository.saveRun).toHaveBeenCalledWith(
         expect.anything(),
-        ExecutionStatusEnum.FAILED,
+        ExecutionStatusEnum.COMPLETED,
         VerdictEnum.INCONCLUSIVE,
-        expect.stringContaining('Execution failed catastrophically: Groq API Error')
+        expect.stringContaining('Claim cannot be mapped to a supported experiment: Groq API Error')
       );
     });
 

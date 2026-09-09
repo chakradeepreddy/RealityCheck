@@ -13,7 +13,7 @@ export const RunStatusViewer: React.FC<RunStatusViewerProps> = ({ status }) => {
     RUNNING: { icon: Activity, color: 'text-blue-600', bg: 'bg-blue-50', label: 'Running' },
     COMPLETED: { icon: CheckCircle, color: 'text-green-600', bg: 'bg-green-50', label: 'Completed' },
     FAILED: { icon: XCircle, color: 'text-red-600', bg: 'bg-red-50', label: 'Failed' },
-  }[status];
+  }[status] || { icon: Activity, color: 'text-slate-500', bg: 'bg-slate-100', label: status || 'Unknown' };
 
   const Icon = config.icon;
 

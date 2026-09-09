@@ -98,17 +98,22 @@ describe('GroqClaimCompiler', () => {
     await expect(compiler.compileClaim('x', 'https://example.com')).rejects.toThrow(/Zod validation failure/);
   });
 
-  it('D. Wrong primitive: rejects CANARY since Step 5B is BOUNDARY only', async () => {
+  it('D. CANARY primitive: accepts valid CANARY spec', async () => {
     mockGroqResponse({
       schemaVersion: '1.0.0',
-      primitive: 'CANARY', // Valid Zod, but invalid semantically for this step
+      primitive: 'CANARY',
       targetUrl: 'https://example.com',
-      testConditions: {},
+      testConditions: {
+        canaryInputTarget: 'email_input',
+        allowedDestinations: []
+      },
       expectedObservables: {}
     });
 
     const compiler = new GroqClaimCompiler();
-    await expect(compiler.compileClaim('x', 'https://example.com')).rejects.toThrow(/primitive must be BOUNDARY/);
+    const result = await compiler.compileClaim('email is private', 'https://example.com');
+    expect(result.primitive).toBe('CANARY');
+    expect(result.testConditions.canaryInputTarget).toBe('email_input');
   });
 
   it('E. Invalid threshold: rejects missing cartSubtotalTarget', async () => {

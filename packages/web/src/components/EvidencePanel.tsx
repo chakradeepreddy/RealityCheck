@@ -12,6 +12,8 @@ export const EvidencePanel: React.FC<EvidencePanelProps> = ({ run }) => {
   const isBoundary = run.primitive === 'BOUNDARY';
   const isCanary = run.primitive === 'CANARY';
 
+  const hasObservations = run.observations && run.observations.length > 0;
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
       <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex items-center gap-2">
@@ -19,27 +21,68 @@ export const EvidencePanel: React.FC<EvidencePanelProps> = ({ run }) => {
         <h3 className="font-semibold text-slate-800">Evidence Details</h3>
       </div>
       
-      <div className="p-6 space-y-6">
-        {isBoundary && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 bg-slate-50 rounded-lg border border-slate-100">
-              <span className="block text-sm font-medium text-slate-500 mb-1">Claimed Boundary</span>
-              <span className="text-xl font-mono text-slate-900">
-                {run.claimedBoundary !== undefined && run.claimedBoundary !== null ? run.claimedBoundary : 'N/A'}
-              </span>
+      <div className="p-6 space-y-8">
+        {/* User Attachment */}
+        {run.claimAttachmentPath && (
+          <div>
+            <h4 className="text-sm font-medium text-slate-700 mb-3 border-b border-slate-100 pb-2">Claim Attachment</h4>
+            <div className="rounded-lg overflow-hidden border border-slate-200 bg-slate-50 max-w-sm">
+              <img 
+                src={`${API_BASE_URL}/evidence/${run.claimAttachmentPath}`} 
+                alt="Claim Evidence" 
+                className="w-full h-auto object-contain"
+              />
             </div>
-            <div className="p-4 bg-slate-50 rounded-lg border border-slate-100">
-              <span className="block text-sm font-medium text-slate-500 mb-1">Observed Boundary</span>
-              <span className="text-xl font-mono text-slate-900">
-                {run.observedBoundary !== undefined && run.observedBoundary !== null ? run.observedBoundary : 'N/A'}
-              </span>
+          </div>
+        )}
+
+        {/* Browser Screenshots */}
+        {run.observations && run.observations.some(obs => obs.evidenceRefs?.screenshotPath) && (
+          <div>
+            <h4 className="text-sm font-medium text-slate-700 mb-3 border-b border-slate-100 pb-2">Execution Screenshots</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {run.observations.map((obs, idx) => {
+                if (!obs.evidenceRefs?.screenshotPath) return null;
+                return (
+                  <div key={idx} className="rounded-lg overflow-hidden border border-slate-200 bg-slate-50 relative group">
+                    <img 
+                      src={`${API_BASE_URL}/evidence/${obs.evidenceRefs.screenshotPath}`} 
+                      alt={`Observation ${idx + 1}`} 
+                      className="w-full h-auto object-contain"
+                    />
+                    <div className="absolute bottom-0 inset-x-0 bg-slate-900/70 text-white text-xs p-2 translate-y-full group-hover:translate-y-0 transition-transform">
+                      {obs.url}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {isBoundary && (
+          <div>
+            <h4 className="text-sm font-medium text-slate-700 mb-3 border-b border-slate-100 pb-2">Boundary Analysis</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 bg-slate-50 rounded-lg border border-slate-100">
+                <span className="block text-sm font-medium text-slate-500 mb-1">Claimed Boundary</span>
+                <span className="text-xl font-mono text-slate-900">
+                  {run.claimedBoundary !== undefined && run.claimedBoundary !== null ? run.claimedBoundary : 'N/A'}
+                </span>
+              </div>
+              <div className="p-4 bg-slate-50 rounded-lg border border-slate-100">
+                <span className="block text-sm font-medium text-slate-500 mb-1">Observed Boundary</span>
+                <span className="text-xl font-mono text-slate-900">
+                  {run.observedBoundary !== undefined && run.observedBoundary !== null ? run.observedBoundary : 'N/A'}
+                </span>
+              </div>
             </div>
           </div>
         )}
 
         {isCanary && (
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 text-slate-700 font-medium pb-2 border-b border-slate-100">
+          <div>
+            <div className="flex items-center gap-2 text-slate-700 font-medium pb-2 border-b border-slate-100 mb-4">
               <ShieldAlert className="w-4 h-4 text-amber-500" />
               Canary Marker Detections
             </div>
@@ -71,8 +114,8 @@ export const EvidencePanel: React.FC<EvidencePanelProps> = ({ run }) => {
 
         {/* DOM Observations / Extra evidence */}
         {run.observations && run.observations.some(obs => obs.domObservations && Object.keys(obs.domObservations).length > 0) && (
-          <div className="mt-6 pt-6 border-t border-slate-100">
-            <h4 className="text-sm font-medium text-slate-700 mb-3">DOM State Samples</h4>
+          <div>
+            <h4 className="text-sm font-medium text-slate-700 mb-3 border-b border-slate-100 pb-2">DOM State Samples</h4>
             <div className="space-y-2">
               {run.observations.map((obs, idx) => {
                 if (!obs.domObservations || Object.keys(obs.domObservations).length === 0) return null;

@@ -5,6 +5,7 @@ export const runs = sqliteTable('runs', {
   originalRunId: text('original_run_id'),
   schemaVersion: text('schema_version').notNull(),
   claim: text('claim').notNull(),
+  claimAttachmentPath: text('claim_attachment_path'),
   targetUrl: text('target_url').notNull(),
   primitive: text('primitive').notNull(),
   executionMode: text('execution_mode').notNull(),

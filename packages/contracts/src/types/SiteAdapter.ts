@@ -19,10 +19,10 @@ export interface SiteAdapter<TPage = any> {
   navigate(page: TPage, url: string): Promise<void>;
 
   /**
-   * Instructs the adapter to establish a requested numeric state (e.g., cart subtotal).
+   * Instructs the adapter to establish a requested numeric state (e.g., cart subtotal or item quantity).
    * For the Boundary experiment, this is usually called multiple times with different values.
    */
-  establishNumericState(page: TPage, targetValue: number): Promise<void>;
+  establishNumericState(page: TPage, targetValue: number, spec?: ExperimentSpec): Promise<void>;
 
   /**
    * Instructs the adapter to read the current DOM/network state and return an Observation.

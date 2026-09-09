@@ -15,7 +15,7 @@ describe('ExperimentForm', () => {
     render(<ExperimentForm onSubmit={vi.fn()} isLoading={false} />);
     
     expect(screen.getByLabelText(/Target URL/i)).toBeDefined();
-    expect(screen.getByLabelText(/Claim/i)).toBeDefined();
+    expect(screen.getByLabelText(/^Claim$/i)).toBeDefined();
     expect(screen.getByRole('button', { name: /Run Check/i })).toBeDefined();
   });
 
@@ -24,12 +24,12 @@ describe('ExperimentForm', () => {
     render(<ExperimentForm onSubmit={onSubmit} isLoading={false} />);
     
     const urlInput = screen.getByLabelText(/Target URL/i);
-    const claimInput = screen.getByLabelText(/Claim/i);
+    const claimInput = screen.getByLabelText(/^Claim$/i);
     
     fireEvent.change(urlInput, { target: { value: 'not-a-url' } });
     fireEvent.change(claimInput, { target: { value: 'Valid claim' } });
     
-    fireEvent.submit(screen.getByRole('button', { name: /Run Check/i }).closest('form')!);
+    fireEvent.submit(screen.getByRole('button', { name: /Run Check/i }));
     
     expect(onSubmit).not.toHaveBeenCalled();
     expect(screen.getByText(/Please enter a valid URL/i)).toBeDefined();
@@ -40,16 +40,16 @@ describe('ExperimentForm', () => {
     render(<ExperimentForm onSubmit={onSubmit} isLoading={false} />);
     
     const urlInput = screen.getByLabelText(/Target URL/i);
-    const claimInput = screen.getByLabelText(/Claim/i);
+    const claimInput = screen.getByLabelText(/^Claim$/i);
     const modeSelect = screen.getByLabelText(/Execution Mode/i);
     
     fireEvent.change(urlInput, { target: { value: 'https://example.com' } });
     fireEvent.change(claimInput, { target: { value: 'Valid claim' } });
     fireEvent.change(modeSelect, { target: { value: 'AUTHORIZED_LIVE' } });
     
-    fireEvent.submit(screen.getByRole('button', { name: /Run Check/i }).closest('form')!);
+    fireEvent.submit(screen.getByRole('button', { name: /Run Check/i }));
     
-    expect(onSubmit).toHaveBeenCalledWith('https://example.com', 'Valid claim', 'AUTHORIZED_LIVE');
+    expect(onSubmit).toHaveBeenCalledWith('https://example.com', 'Valid claim', 'AUTHORIZED_LIVE', undefined);
     expect(screen.queryByText(/Please enter a valid URL/i)).toBeNull();
   });
 
@@ -57,7 +57,7 @@ describe('ExperimentForm', () => {
     render(<ExperimentForm onSubmit={vi.fn()} isLoading={true} />);
     
     expect((screen.getByLabelText(/Target URL/i) as HTMLInputElement).disabled).toBe(true);
-    expect((screen.getByLabelText(/Claim/i) as HTMLTextAreaElement).disabled).toBe(true);
+    expect((screen.getByLabelText(/^Claim$/i) as HTMLTextAreaElement).disabled).toBe(true);
     expect((screen.getByRole('button', { name: /Running experiment/i }) as HTMLButtonElement).disabled).toBe(true);
   });
 });

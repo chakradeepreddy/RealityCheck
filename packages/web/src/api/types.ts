@@ -18,6 +18,7 @@ export interface Run {
   id: string;
   originalRunId?: string;
   claim: string;
+  claimAttachmentPath?: string;
   targetUrl: string;
   primitive: Primitive;
   executionMode: ExecutionMode;

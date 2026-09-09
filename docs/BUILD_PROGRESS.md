@@ -281,10 +281,20 @@
      - Replaced the generic `ShieldCheck` icon with a custom, sleek AI-generated RealityCheck logo in the header.
    - **Test results:** 75/75 tests passing across the repository. Typecheck returns 0 errors.
 
+## Step 11D — QuickCart Benchmark Integration
+   - **Objective:** Connect the fully built RealityCheck architecture to the actual QuickCart benchmark application to prove end-to-end functionality across Chromium.
+   - **What was implemented:**
+     - Updated `QuickCartAdapter.ts` to navigate via UI elements (`.nav-cart-link`) and read product subtotals cleanly, preserving React router state.
+     - Addressed empty cart edge-cases in `observeState` to gracefully handle cases where the subtotal element is not visible (preventing `TimeoutError`).
+     - Implemented generic adapter logic to handle `QUANTITY_DISCOUNT` experiments by intelligently interacting with QuickCart's `Increase quantity` buttons instead of the initial `Add to cart` button.
+     - Fixed `DeterministicVerifier.ts` fail-closed logic and `GroqClaimCompiler` constraints to support `CANARY` tests alongside boundaries correctly without throwing Internal Server Errors.
+     - Fixed `QuickCartE2E.test.ts` to supply correctly structured `testConditions` (`canaryInputTarget`, `allowedDestinations`).
+   - **Test results:** All 5 E2E Playwright tests executed against the real `http://127.0.0.1:5173/` React app and passed natively without mocks. In addition, the actual API tests successfully ran via the frontend payload.
+     - Discovered the hidden 1050 boundary successfully.
+     - Safely failed closed on insufficient evidence.
+     - Accurately flagged unauthorized Canary network leak to `/fake-third-party`.
+     
 ## Current Status
-- Current phase: UI and API Product Integration
-- Current step: Step 11C Completed
-- Overall completion estimate: 100% Core Pipeline + API & Web Frontend
-
-## Next Step
-Implement Step 11D: QuickCart Benchmark setup for end-to-end evaluation.
+- Current phase: E2E Integration
+- Current step: Step 11D Completed
+- Overall completion estimate: 100% Core Pipeline + API + Web + Benchmark E2E

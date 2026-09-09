@@ -23,6 +23,7 @@ describe('ExperimentRepository', () => {
         "original_run_id" text,
         "schema_version" text NOT NULL,
         "claim" text NOT NULL,
+        "claim_attachment_path" text,
         "target_url" text NOT NULL,
         "primitive" text NOT NULL,
         "execution_mode" text NOT NULL,

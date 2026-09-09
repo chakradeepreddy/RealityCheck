@@ -22,17 +22,30 @@ export class GroqClaimCompiler implements ClaimCompiler {
 
     const systemPrompt = `
 You are a claim-to-experiment compiler for RealityCheck.
-Your job is to translate a natural language claim into a structured ExperimentSpec JSON.
-Return ONLY valid JSON matching the schema.
-You must NOT browse, execute code, decide verdicts, or manufacture evidence.
-You are generating a TEST PLAN, not a conclusion.
-Only BOUNDARY experiments with boundaryType NUMERIC_THRESHOLD are supported.
-The user's URL is authoritative and must be preserved exactly.
-Propose sensible, numeric, finite, deterministic probe states relative to the claimed threshold.
-Include useful values below, at, and above the threshold.
-If the claim cannot be represented safely as a supported Boundary v1 experiment, you must fail rather than hallucinating unsupported fields or behavior.
+Translate natural language claims into a structured ExperimentSpec JSON object.
+Always return valid JSON. Do NOT explain. Do NOT add extra text.
 
-Strictly adhere to this JSON Schema for your output:
+SUPPORTED CLAIM FAMILIES:
+A. NUMERIC THRESHOLD / BOUNDARY (e.g. "Free shipping on orders of 999 or more", "Free delivery above 999", "Orders worth 999 get free shipping")
+   -> primitive: "BOUNDARY", boundaryType: "NUMERIC_THRESHOLD", testConditions.cartSubtotalTarget: <number>
+
+B. QUANTITY / PRODUCT COUNT DISCOUNT (e.g. "Buy 3 products and get 10% off", "10% discount when buying 3+ products", "Get 10 percent discount for 3 or more items", "10% off when cart quantity reaches 3")
+   -> primitive: "BOUNDARY", boundaryType: "QUANTITY_DISCOUNT", testConditions.itemsToAdd: [{"quantity": <number>}], expectedObservables.discountApplied: true
+
+C. SPEND-TO-SAVE / FEE THRESHOLD (e.g. "Spend 2000 and get 200 off")
+   -> primitive: "BOUNDARY", boundaryType: "SPEND_TO_SAVE", testConditions.cartSubtotalTarget: <number>
+
+D. CANARY / CONTROLLED DATA-LEAK CLAIM (e.g. "Does this form send my information to another website?", "Check whether my submitted information is shared with a third party")
+   -> primitive: "CANARY", testConditions.canaryInputTarget: "email_input", testConditions.allowedDestinations: []
+
+E. UNSUPPORTED / AMBIGUOUS CLAIMS (e.g. "This website is trustworthy", "The product is high quality", "This company respects my privacy")
+   If the claim cannot be mapped to the above verifiable experiments, set primitive to "UNSUPPORTED".
+
+Rules for properties:
+- schemaVersion: "1.0.0"
+- targetUrl: exactly as provided by the user.
+
+Strictly adhere to this JSON Schema for your output (except for primitive: "UNSUPPORTED" which you should use for ambiguous claims despite the schema):
 ${JSON.stringify(jsonSchema)}
 `.trim();
 
@@ -41,8 +54,7 @@ ${JSON.stringify(jsonSchema)}
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: `Target URL: ${targetUrl}\nClaim: ${claim}` }
-      ],
-      response_format: { type: 'json_object' }
+      ]
     };
 
     let response: Response;
@@ -68,7 +80,13 @@ ${JSON.stringify(jsonSchema)}
     let parsedContent: any;
     
     try {
-      parsedContent = JSON.parse(data.choices[0].message.content);
+      let rawContent = data.choices[0].message.content;
+      // Extract JSON if wrapped in markdown
+      const match = rawContent.match(/```(?:json)?([\s\S]*?)```/);
+      if (match) {
+        rawContent = match[1];
+      }
+      parsedContent = JSON.parse(rawContent.trim());
     } catch (e) {
       throw new Error('Malformed response from LLM: invalid JSON');
     }
@@ -82,12 +100,32 @@ ${JSON.stringify(jsonSchema)}
     let spec = validationResult.data;
 
     // Step B: Semantic validation
-    if (spec.primitive !== 'BOUNDARY') {
-      throw new Error(`Semantic validation failure: primitive must be BOUNDARY, got ${spec.primitive}`);
+    if (spec.primitive !== 'BOUNDARY' && spec.primitive !== 'CANARY') {
+      throw new Error(`Semantic validation failure: unsupported primitive ${spec.primitive}`);
     }
 
-    if (spec.boundaryType !== 'NUMERIC_THRESHOLD') {
-      throw new Error(`Semantic validation failure: boundaryType must be NUMERIC_THRESHOLD, got ${spec.boundaryType}`);
+    if (spec.primitive === 'BOUNDARY') {
+      if (spec.boundaryType !== 'NUMERIC_THRESHOLD' && spec.boundaryType !== 'QUANTITY_DISCOUNT') {
+        throw new Error(`Semantic validation failure: unsupported boundaryType ${spec.boundaryType}`);
+      }
+
+      if (spec.boundaryType === 'NUMERIC_THRESHOLD') {
+        if (typeof spec.testConditions.cartSubtotalTarget !== 'number' || !Number.isFinite(spec.testConditions.cartSubtotalTarget)) {
+          throw new Error('Semantic validation failure: Invalid or missing numeric threshold (cartSubtotalTarget)');
+        }
+      }
+
+      if (spec.boundaryType === 'QUANTITY_DISCOUNT') {
+        if (!spec.testConditions.itemsToAdd || spec.testConditions.itemsToAdd.length === 0) {
+          throw new Error('Semantic validation failure: Invalid or missing itemsToAdd for QUANTITY_DISCOUNT');
+        }
+      }
+    }
+
+    if (spec.primitive === 'CANARY') {
+      if (typeof spec.testConditions.canaryInputTarget !== 'string') {
+        throw new Error('Semantic validation failure: Invalid or missing canaryInputTarget for CANARY');
+      }
     }
 
     // Enforce URL preservation (authoritative)
@@ -95,20 +133,6 @@ ${JSON.stringify(jsonSchema)}
       // Deterministically repair the URL if the LLM attempted to change it
       spec.targetUrl = targetUrl;
     }
-
-    // Validate the threshold exists and is valid
-    if (typeof spec.testConditions.cartSubtotalTarget !== 'number' || !Number.isFinite(spec.testConditions.cartSubtotalTarget)) {
-      throw new Error('Semantic validation failure: Invalid or missing numeric threshold (cartSubtotalTarget)');
-    }
-
-    // The probe states in Boundary v1 are implicit relative to cartSubtotalTarget
-    // Note: the Executor handles the actual probe generation or receives it as an array.
-    // The prompt requested that the LLM proposes sensible probe states if the contract permits it.
-    // Our existing contract does NOT have an explicit "probeStates" array. It only defines 'cartSubtotalTarget'.
-    // The instructions say: "The LLM MAY propose probe states... Deterministic code validates and normalizes them... 
-    // satisfy the existing ExperimentSpec contract".
-    // Since the existing ExperimentSpec contract does NOT contain probe states, the compiler should just return the valid ExperimentSpec.
-    // The prompt says: "normalize claims into the existing numeric threshold Boundary representation wherever the existing contract permits."
 
     return spec;
   }

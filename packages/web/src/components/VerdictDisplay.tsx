@@ -33,7 +33,13 @@ export const VerdictDisplay: React.FC<VerdictDisplayProps> = ({ verdict, reason 
       border: 'border-amber-200',
       label: 'INCONCLUSIVE' 
     },
-  }[verdict];
+  }[verdict] || {
+    icon: HelpCircle,
+    color: 'text-slate-700',
+    bg: 'bg-slate-50',
+    border: 'border-slate-200',
+    label: verdict || 'UNKNOWN'
+  };
 
   const Icon = config.icon;
 

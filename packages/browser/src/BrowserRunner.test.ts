@@ -14,7 +14,8 @@ vi.mock('@playwright/test', () => {
           newPage: vi.fn().mockResolvedValue({
             close: vi.fn().mockResolvedValue(undefined),
             waitForLoadState: vi.fn().mockResolvedValue(undefined),
-            url: vi.fn().mockReturnValue('https://example.com/test')
+            url: vi.fn().mockReturnValue('https://example.com/test'),
+            screenshot: vi.fn().mockResolvedValue(Buffer.from(''))
           })
         })
       })

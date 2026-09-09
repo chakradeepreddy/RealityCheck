@@ -26,6 +26,7 @@ export class ExperimentRepository {
       originalRunId: manifest.originalRunId || null,
       schemaVersion: manifest.schemaVersion,
       claim: manifest.claim,
+      claimAttachmentPath: manifest.claimAttachmentPath || null,
       targetUrl: manifest.targetUrl,
       primitive: manifest.primitive,
       executionMode: manifest.executionMode,
@@ -46,6 +47,7 @@ export class ExperimentRepository {
       set: {
         schemaVersion: manifest.schemaVersion,
         claim: manifest.claim,
+        claimAttachmentPath: manifest.claimAttachmentPath || null,
         targetUrl: manifest.targetUrl,
         primitive: manifest.primitive,
         executionMode: manifest.executionMode,
@@ -94,5 +96,17 @@ export class ExperimentRepository {
       }
     });
     return run;
+  }
+
+  async getAllRuns() {
+    const allRuns = await this.db.query.runs.findMany({
+      orderBy: (runs, { desc }) => [desc(runs.startedAt)],
+      with: {
+        observations: {
+          orderBy: [asc(schema.observations.sequenceIndex)]
+        }
+      }
+    });
+    return allRuns;
   }
 }

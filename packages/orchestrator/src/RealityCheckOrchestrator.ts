@@ -21,14 +21,16 @@ export class RealityCheckOrchestrator {
     targetUrl: string,
     adapter: SiteAdapter<any>,
     compiler: ClaimCompiler,
-    executionMode: ExecutionMode = 'CONTROLLED'
-  ): Promise<ExecutionResult> {
+    executionMode: ExecutionMode = 'CONTROLLED',
+    claimAttachmentPath?: string
+  ): Promise<ExecutionResult & { runId: string }> {
     const runId = crypto.randomUUID();
     
     const manifest: RunManifest = {
       schemaVersion: '1.0.0',
       runId,
       claim,
+      claimAttachmentPath,
       targetUrl,
       primitive: 'BOUNDARY',
       executionMode,
@@ -60,6 +62,7 @@ export class RealityCheckOrchestrator {
       const reason = `Preflight failed: Adapter ${manifest.adapter} does not support URL ${targetUrl}`;
       await this.repository.saveRun(manifest, ExecutionStatusEnum.NOT_RUN, VerdictEnum.INCONCLUSIVE, reason);
       return {
+        runId,
         spec: manifest.experimentSpec,
         observations: [],
         verifierResult: { verdict: VerdictEnum.INCONCLUSIVE, reason }
@@ -71,10 +74,24 @@ export class RealityCheckOrchestrator {
 
     try {
       // Compile
-      const spec = await compiler.compileClaim(claim, targetUrl);
+      let spec: ExperimentSpec;
+      try {
+        spec = await compiler.compileClaim(claim, targetUrl);
+      } catch (e: any) {
+        const reason = e instanceof Error ? e.message : 'Compilation failed';
+        const inconclusiveReason = `Claim cannot be mapped to a supported experiment: ${reason}`;
+        await this.repository.saveRun(manifest, ExecutionStatusEnum.COMPLETED, VerdictEnum.INCONCLUSIVE, inconclusiveReason);
+        return {
+          runId,
+          spec: manifest.experimentSpec,
+          observations: [],
+          verifierResult: { verdict: VerdictEnum.INCONCLUSIVE, reason: inconclusiveReason }
+        };
+      }
+      
       manifest.experimentSpec = spec;
       manifest.expectedObservables = spec.expectedObservables;
-      manifest.primitive = spec.primitive;
+      manifest.primitive = spec.primitive as any;
       
       // Update DB with compiled spec immediately before execution
       await this.repository.saveRun(manifest, ExecutionStatusEnum.RUNNING, VerdictEnum.INCONCLUSIVE, 'Executing browser tests...');
@@ -103,7 +120,7 @@ export class RealityCheckOrchestrator {
         await this.repository.saveObservations(runId, result.observations);
       }
 
-      return result;
+      return { runId, ...result };
 
     } catch (error: any) {
       const reason = `Execution failed catastrophically: ${error.message}`;
@@ -119,7 +136,7 @@ export class RealityCheckOrchestrator {
     originalRunId: string,
     adapter: SiteAdapter<any>,
     executionMode: ExecutionMode = 'CONTROLLED'
-  ): Promise<ExecutionResult> {
+  ): Promise<ExecutionResult & { runId: string }> {
     const originalRun = await this.repository.getRun(originalRunId);
     if (!originalRun) {
       throw new Error(`Run ${originalRunId} not found in database.`);
@@ -133,6 +150,7 @@ export class RealityCheckOrchestrator {
       runId,
       originalRunId,
       claim: originalRun.claim,
+      claimAttachmentPath: originalRun.claimAttachmentPath || undefined,
       targetUrl: originalRun.targetUrl,
       primitive: originalRun.primitive as 'BOUNDARY' | 'CANARY',
       executionMode,
@@ -157,6 +175,7 @@ export class RealityCheckOrchestrator {
       const reason = `Replay Preflight failed: Adapter ${manifest.adapter} does not support URL ${manifest.targetUrl}`;
       await this.repository.saveRun(manifest, ExecutionStatusEnum.NOT_RUN, VerdictEnum.INCONCLUSIVE, reason);
       return {
+        runId,
         spec: manifest.experimentSpec,
         observations: [],
         verifierResult: { verdict: VerdictEnum.INCONCLUSIVE, reason }
@@ -190,7 +209,7 @@ export class RealityCheckOrchestrator {
         await this.repository.saveObservations(runId, result.observations);
       }
 
-      return result;
+      return { runId, ...result };
 
     } catch (error: any) {
       const reason = `Replay execution failed catastrophically: ${error.message}`;

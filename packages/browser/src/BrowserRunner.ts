@@ -1,5 +1,7 @@
 import { chromium, Browser, Page } from '@playwright/test';
 import { ExperimentSpec, Observation, SiteAdapter } from '@realitycheck/contracts';
+import path from 'path';
+import crypto from 'crypto';
 
 /**
  * Generic runner for executing reality checks in the browser.
@@ -54,13 +56,27 @@ export class BrowserRunner {
       for (const state of probeStates) {
         try {
           // Establish the state using the adapter
-          await adapter.establishNumericState(page, state);
+          await adapter.establishNumericState(page, state, spec);
 
           // Give the page a moment to stabilize network/DOM if the adapter didn't fully await it
           await page.waitForLoadState('domcontentloaded');
 
           // Read the state to generate an observation
           const observation = await adapter.observeState(page, page.url());
+          
+          // Capture evidence screenshot
+          const screenshotName = `obs_${crypto.randomUUID()}.png`;
+          const evidenceDir = path.join(process.cwd(), 'packages', 'api', 'data', 'evidence');
+          // Fallback if process.cwd() is packages/api
+          const finalEvidenceDir = process.cwd().endsWith('api') ? path.join(process.cwd(), 'data', 'evidence') : evidenceDir;
+          const screenshotPath = path.join(finalEvidenceDir, screenshotName);
+          
+          await page.screenshot({ path: screenshotPath, fullPage: true });
+          observation.evidenceRefs = {
+            ...(observation.evidenceRefs || {}),
+            screenshotPath: screenshotName
+          };
+
           observations.push(observation);
         } catch (err) {
           // If a state cannot be established or observed, we log it and potentially continue or stop,
@@ -129,6 +145,18 @@ export class BrowserRunner {
       
       // We also take a regular observation for evidence
       const observation = await adapter.observeState(page, page.url());
+      
+      const screenshotName = `canary_obs_${crypto.randomUUID()}.png`;
+      const evidenceDir = path.join(process.cwd(), 'packages', 'api', 'data', 'evidence');
+      const finalEvidenceDir = process.cwd().endsWith('api') ? path.join(process.cwd(), 'data', 'evidence') : evidenceDir;
+      const screenshotPath = path.join(finalEvidenceDir, screenshotName);
+      
+      await page.screenshot({ path: screenshotPath, fullPage: true });
+      observation.evidenceRefs = {
+        ...(observation.evidenceRefs || {}),
+        screenshotPath: screenshotName
+      };
+      
       observation.canaryNetworkObservations = networkObservations;
       return [observation];
 
