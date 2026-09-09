@@ -1,5 +1,5 @@
 import React from 'react';
-import { Run } from '../api/types';
+import type { Run } from '../api/types';
 import { ShieldAlert, Fingerprint, Activity } from 'lucide-react';
 
 interface EvidencePanelProps {

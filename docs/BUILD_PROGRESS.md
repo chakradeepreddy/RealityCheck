@@ -261,10 +261,30 @@
      - Kept dependencies thin: no LLM, DB, or orchestrator injection yet.
    - **Test results:** `npm test` successfully injected and verified `GET /health` with 200 OK. `npm run typecheck` returned 0 errors. The server also manually passed a curl test locally.
 
+## Step 11B — API Orchestrator Integration
+   - **Objective:** Wire the Fastify API to the `RealityCheckOrchestrator` to serve as a thin HTTP transport layer over the core logic.
+   - **What was implemented:**
+     - Connected `POST /api/runs` to `orchestrator.runNewExperiment`.
+     - Connected `GET /api/runs/:runId` to fetch run details from SQLite.
+     - Connected `POST /api/runs/:runId/replay` to trigger `orchestrator.runReplay`.
+     - Fixed an integration bug related to CommonJS / ESM interop, removing `"type": "module"` from the API package so it interoperates seamlessly with the rest of the workspace's CJS configuration.
+   - **Test results:** All endpoints tested, `npm test` passes, Fastify server cleanly boots.
+
+## Step 11C — React Frontend Foundation
+   - **Objective:** Build the competition-grade React/Vite UI that interfaces with the Fastify API without recalculating domain logic.
+   - **What was implemented:**
+     - Created `@realitycheck/web` using Vite, React, TypeScript, and TailwindCSS.
+     - Built `api/client.ts` to strictly communicate with the Fastify API (`VITE_API_BASE_URL`).
+     - Built components: `ExperimentForm`, `RunStatusViewer`, `VerdictDisplay`, `EvidencePanel`, and `ReplayAction`.
+     - Cleaned up duplicate toolchain dependencies (TypeScript, Vitest, `@types/node`) from the web workspace to utilize the root monorepo versions seamlessly.
+     - Fixed a fatal React blank screen issue caused by `verbatimModuleSyntax` in `tsconfig.app.json` where type-only imports were mistakenly transpiled to JS value imports by replacing them with `import type`.
+     - Replaced the generic `ShieldCheck` icon with a custom, sleek AI-generated RealityCheck logo in the header.
+   - **Test results:** 75/75 tests passing across the repository. Typecheck returns 0 errors.
+
 ## Current Status
-- Current phase: API Layer Implementation
-- Current step: Step 11A Completed
-- Overall completion estimate: 100% of P0 Pipeline + Step 11A API Foundation
+- Current phase: UI and API Product Integration
+- Current step: Step 11C Completed
+- Overall completion estimate: 100% Core Pipeline + API & Web Frontend
 
 ## Next Step
-Determine the next priority: UI development, API integrations, or QuickCart benchmark implementations.
+Implement Step 11D: QuickCart Benchmark setup for end-to-end evaluation.

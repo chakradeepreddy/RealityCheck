@@ -5,8 +5,7 @@ import { VerdictDisplay } from './components/VerdictDisplay';
 import { EvidencePanel } from './components/EvidencePanel';
 import { ReplayAction } from './components/ReplayAction';
 import { apiClient } from './api/client';
-import { Run, ExecutionMode } from './api/types';
-import { ShieldCheck } from 'lucide-react';
+import type { Run, ExecutionMode } from './api/types';
 
 export default function App() {
   const [currentRun, setCurrentRun] = useState<Run | null>(null);
@@ -46,7 +45,7 @@ export default function App() {
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
       <header className="bg-white border-b border-slate-200 py-6 px-4 md:px-8 shadow-sm">
         <div className="max-w-5xl mx-auto flex items-center gap-3">
-          <ShieldCheck className="w-8 h-8 text-accent" />
+          <img src="/logo.jpg" alt="RealityCheck Logo" className="w-10 h-10 rounded-lg shadow-sm" />
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-slate-900">RealityCheck</h1>
             <p className="text-slate-500 text-sm font-medium">Don't just read the claim. Run it.</p>

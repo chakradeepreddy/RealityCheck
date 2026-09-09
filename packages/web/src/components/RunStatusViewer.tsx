@@ -1,5 +1,5 @@
 import React from 'react';
-import { ExecutionStatus } from '../api/types';
+import type { ExecutionStatus } from '../api/types';
 import { Activity, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { clsx } from 'clsx';
 

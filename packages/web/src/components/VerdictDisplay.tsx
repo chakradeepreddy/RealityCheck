@@ -1,5 +1,5 @@
 import React from 'react';
-import { Verdict } from '../api/types';
+import type { Verdict } from '../api/types';
 import { CheckCircle2, XOctagon, HelpCircle } from 'lucide-react';
 import { clsx } from 'clsx';
 

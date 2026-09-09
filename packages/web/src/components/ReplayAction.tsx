@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ExecutionMode } from '../api/types';
+import type { ExecutionMode } from '../api/types';
 import { RefreshCw } from 'lucide-react';
 
 interface ReplayActionProps {
