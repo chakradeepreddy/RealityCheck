@@ -167,10 +167,41 @@
    - **Known limitations:** Execution expects an array of explicit probe states (e.g. `[999, 1050]`) which a future intelligent LLM will need to generate.
    - **What is intentionally deferred:** LLM ClaimCompiler, UI, DB persistence.
 
+## Step 5B — ClaimCompiler v1
+   - **Objective:** Implement the initial LLM ClaimCompiler using Groq structured outputs.
+   - **What was implemented:**
+     - Created `@realitycheck/compiler` package.
+     - Implemented `GroqClaimCompiler` conforming to the `ClaimCompiler` interface.
+     - Enforced `openai/gpt-oss-120b` as the default model using Groq OpenAI-compatible endpoints.
+     - Integrated `zod-to-json-schema` to securely pass the `ExperimentSpecSchema` to the LLM and strictly validate its output.
+     - Added robust deterministic semantic validation (e.g. enforcing the BOUNDARY primitive, URL preservation, and boundary thresholds) so the LLM cannot bypass strict safety checks.
+     - Isolated API keys explicitly through server-side environment (`.env`).
+   - **Files created/modified:**
+     - `.env.example`
+     - `packages/compiler/package.json`
+     - `packages/compiler/src/GroqClaimCompiler.ts`
+     - `packages/compiler/src/GroqClaimCompiler.test.ts`
+     - `packages/compiler/src/index.ts`
+     - `package.json` & `tsconfig.json` (Root configurations updated for typings)
+     - `docs/ARCHITECTURE.md`
+   - **Test fixtures:**
+     - A. Valid compilation -> outputs a valid ExperimentSpec
+     - B. URL preservation -> compiler enforces authoritative user URL
+     - C. Invalid schema -> fails safely on malformed JSON and bad Zod structure
+     - D. Wrong primitive -> rejects CANARY since Step 5B is BOUNDARY only
+     - E. Invalid threshold -> rejects missing `cartSubtotalTarget`
+     - G. Missing API key -> fails clearly without request
+     - H. Groq provider failure -> clean typed failure
+     - I. No verdict authority -> returns ExperimentSpec, no execution/browser interaction
+   - **Test results:** All 41 unit tests passed perfectly across the monorepo.
+   - **Typecheck results:** 0 errors.
+   - **Security:** Verified no API keys are present in source, tests, or documentation. Git ignores `.env` cleanly.
+   - **Known limitations:** Currently strictly supports `BOUNDARY` experiments with `NUMERIC_THRESHOLD` boundary types, as configured in the existing system.
+
 ## Current Status
-- Current phase: Executor
-- Current step: Step 5A
-- Overall completion estimate: 55%
+- Current phase: Compiler
+- Current step: Step 5B
+- Overall completion estimate: 65%
 
 ## Next Step
-Ready for Step 5B / 6.
+Ready for Step 6 / E2E.

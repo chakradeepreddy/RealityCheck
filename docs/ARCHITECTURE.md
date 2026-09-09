@@ -31,24 +31,31 @@ RealityCheck operates with strict fail-closed philosophy. If evidence is missing
 ## Major Modules
 Conceptually, the system is organized into the following areas:
 
-### 1. Orchestration Layer (`@realitycheck/executor`)
+### 1. Claim Compiler (`@realitycheck/compiler`)
+The entry point of the pipeline. It takes natural language claims (e.g. "Free shipping over ₹999") and compiles them into a structured `ExperimentSpec`.
+- Powered by Groq's `openai/gpt-oss-120b` via structured outputs (Zod to JSON Schema).
+- Performs strict schema validation and deterministic semantic validation.
+- Does NOT execute browser actions, manufacture evidence, or determine verdicts.
+- Fails closed on invalid inputs or malformed LLM responses.
+
+### 2. Orchestration Layer (`@realitycheck/executor`)
 The Experiment Executor connects the contracts, browser layer, engines, and verifier deterministically into a single end-to-end pipeline.
 - It operates with zero LLM involvement.
 - It is structurally website-agnostic (QuickCart details are injected via SiteAdapters).
 - It safely fails closed: if inputs are invalid or the browser crashes, it generates an `INCONCLUSIVE` verdict without manufacturing evidence or faking data.
 
-### 2. Browser Runner & SiteAdapters (`@realitycheck/browser`)
+### 3. Browser Runner & SiteAdapters (`@realitycheck/browser`)
 The browser layer runs Playwright against live websites to generate deterministic `Observation`s. It is composed of two boundaries:
 - **`BrowserRunner`**: A generic execution engine that iterates through required test states, launches Chromium contexts, manages the observation loop, and fails closed safely if things go wrong. It has **no** knowledge of specific sites.
 - **`SiteAdapter`**: The site-specific bridge (e.g. `QuickCartAdapter`) that translates generic RealityCheck instructions (e.g. "navigate to start", "establish numeric subtotal 1050", "read shipping DOM") into specific Playwright interactions (`locator.fill`, `locator.click`). Real-world authorized websites simply implement this adapter to plug into the engine safely without bypassing security layers.
 
-### 3. Boundary Engine (`@realitycheck/engines`)
+### 4. Boundary Engine (`@realitycheck/engines`)
 Responsible for isolating transition points from an array of `Observation` objects. Purely functional.
 
-### 4. Deterministic Verifier (`@realitycheck/verifier`)
+### 5. Deterministic Verifier (`@realitycheck/verifier`)
 Strict rule-engine that validates the `BoundaryAnalysisResult` against the original `ExperimentSpec` and issues a `Verdict`.
 
-### 5. Contracts (`@realitycheck/contracts`)
+### 6. Contracts (`@realitycheck/contracts`)
 Zod schemas defining the universal vocabulary: `ExperimentSpec` (the claim to test), `Observation` (the raw browser data), and `RunManifest` (the execution plan).
 
 - **Frontend**: React + Vite + Tailwind for the user dashboard.
