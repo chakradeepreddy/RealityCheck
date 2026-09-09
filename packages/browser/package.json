@@ -1,0 +1,9 @@
+{
+  "name": "@realitycheck/browser",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "dependencies": {
+    "@realitycheck/contracts": "*",
+    "@playwright/test": "^1.0.0"
+  }
+}

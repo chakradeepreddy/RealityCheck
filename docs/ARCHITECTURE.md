@@ -31,12 +31,22 @@ RealityCheck operates with strict fail-closed philosophy. If evidence is missing
 ## Major Modules
 Conceptually, the system is organized into the following areas:
 
+### 1. Browser Runner & SiteAdapters (`@realitycheck/browser`)
+The browser layer runs Playwright against live websites to generate deterministic `Observation`s. It is composed of two boundaries:
+- **`BrowserRunner`**: A generic execution engine that iterates through required test states, launches Chromium contexts, manages the observation loop, and fails closed safely if things go wrong. It has **no** knowledge of specific sites.
+- **`SiteAdapter`**: The site-specific bridge (e.g. `QuickCartAdapter`) that translates generic RealityCheck instructions (e.g. "navigate to start", "establish numeric subtotal 1050", "read shipping DOM") into specific Playwright interactions (`locator.fill`, `locator.click`). Real-world authorized websites simply implement this adapter to plug into the engine safely without bypassing security layers.
+
+### 2. Boundary Engine (`@realitycheck/engines`)
+Responsible for isolating transition points from an array of `Observation` objects. Purely functional.
+
+### 3. Deterministic Verifier (`@realitycheck/verifier`)
+Strict rule-engine that validates the `BoundaryAnalysisResult` against the original `ExperimentSpec` and issues a `Verdict`.
+
+### 4. Contracts (`@realitycheck/contracts`)
+Zod schemas defining the universal vocabulary: `ExperimentSpec` (the claim to test), `Observation` (the raw browser data), and `RunManifest` (the execution plan).
+
 - **Frontend**: React + Vite + Tailwind for the user dashboard.
 - **Backend**: Node.js + Fastify for the API.
-- **Contracts**: Zod-based typed schemas for `ExperimentSpec` and `Observation`.
-- **Experiment Engines**: The Boundary Engine computes deterministic transitions from observations. It operates on a coarse-to-fine probe strategy and does NOT determine the final verdict.
-- **Browser Automation**: Playwright + Chromium.
-- **Verifier**: Deterministic typescript logic to analyze boundary engine outputs against the original claim.
 - **Persistence & Evidence**: SQLite + Drizzle, storing structured JSON and file-system paths for traces/screenshots.
 
 ## Contract-First Approach

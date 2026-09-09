@@ -113,10 +113,34 @@
    - **Known limitations:** Only evaluates exact integer match validation for the boundary; tolerances are explicitly skipped right now.
    - **What is intentionally deferred:** Real LLM integration, Playwright execution, actual SiteAdapter creation, Database integration.
 
+## Step 4 — Browser Observation Foundation
+   - **Objective:** Build the reusable, Playwright-based browser foundation to map generic boundary experiment requirements into concrete website interactions.
+   - **What was implemented:**
+     - Created `@realitycheck/browser` package mapping tests to real browser automation.
+     - Refactored `SiteAdapter` contract into an interactive, multi-step process (`navigate`, `establishNumericState`, `observeState`) rather than an abstract monolithic execution.
+     - Implemented `BrowserRunner` generic execution flow that iterates over required test states and safely wraps failures (fail-closed) without assuming any website structures or specific tests.
+     - Implemented `QuickCartAdapter` to map RealityCheck's boundary primitives directly to the QuickCart integration environment (simulating `[data-test="quantity-input"]` additions to establish subtotals).
+   - **Files created/modified:**
+     - `packages/browser/package.json`
+     - `packages/browser/src/BrowserRunner.ts`
+     - `packages/browser/src/BrowserRunner.test.ts`
+     - `packages/browser/src/QuickCartAdapter.ts`
+     - `packages/browser/src/index.ts`
+     - `packages/contracts/src/types/SiteAdapter.ts`
+   - **Domain/Data Flow:** `ExperimentSpec` + `SiteAdapter` → `BrowserRunner` → `Observation[]`
+   - **Supported semantics:** Extensible Playwright runner that interacts securely with target sites, isolates specific numeric boundary conditions, reads target DOM objects, and safely returns Zod-validated `Observation` collections.
+   - **Test fixtures:**
+     - Created a mocked Architectural integration test proving `BrowserRunner` has zero hardcoded QuickCart knowledge.
+     - Simulated bot-protection failure handling (fail-closed architecture).
+   - **Test results:** All 26 unit tests passed flawlessly.
+   - **Typecheck results:** `npm run typecheck` returned 0 errors across all monorepo packages.
+   - **Known limitations:** QuickCart integration lacks the backend (QuickCart not implemented yet).
+   - **What is intentionally deferred:** LLM ClaimCompiler, UI, DB persistence.
+
 ## Current Status
-- Current phase: Verifier
-- Current step: Step 3
-- Overall completion estimate: 25%
+- Current phase: Browser
+- Current step: Step 4
+- Overall completion estimate: 40%
 
 ## Next Step
-Ready for Step 4.
+Ready for Step 5.

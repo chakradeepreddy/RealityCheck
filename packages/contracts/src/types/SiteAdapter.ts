@@ -2,34 +2,25 @@ import { ExperimentSpec } from '../schemas/experiment';
 import { Observation } from '../schemas/observation';
 
 /**
- * SiteAdapter maps experiment semantics to concrete browser actions and observables
- * for a specific target site.
- * 
- * RealityCheck cannot magically understand every arbitrary website. The adapter
- * bridges the gap between the generic ExperimentSpec and the specific DOM/network
- * interactions required for a given site.
+ * Interface for establishing a specific test state and reading observations.
  */
-export interface SiteAdapter {
-  /**
-   * The identifier for this adapter (e.g., 'quickcart')
-   */
+export interface SiteAdapter<TPage = any> {
   readonly id: string;
-  
-  /**
-   * The version of this adapter
-   */
   readonly version: string;
 
   /**
-   * Executes the given ExperimentSpec using Playwright (or similar) and returns
-   * the observed results.
-   * 
-   * Note: The adapter implementation will require access to a browser context/page,
-   * but the interface is kept abstract here.
-   * 
-   * @param spec The experiment to run
-   * @param browserContext Context object (e.g. Playwright Page) - type to be defined later
-   * @returns A promise resolving to the Observation gathered during execution
+   * Instructs the adapter to navigate to the correct starting page.
    */
-  executeExperiment(spec: ExperimentSpec, browserContext: any): Promise<Observation>;
+  navigate(page: TPage, url: string): Promise<void>;
+
+  /**
+   * Instructs the adapter to establish a requested numeric state (e.g., cart subtotal).
+   * For the Boundary experiment, this is usually called multiple times with different values.
+   */
+  establishNumericState(page: TPage, targetValue: number): Promise<void>;
+
+  /**
+   * Instructs the adapter to read the current DOM/network state and return an Observation.
+   */
+  observeState(page: TPage, url: string): Promise<Observation>;
 }
