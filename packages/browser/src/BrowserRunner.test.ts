@@ -57,6 +57,7 @@ describe('BrowserRunner generic architecture test', () => {
     const mockAdapter: SiteAdapter<Page> = {
       id: 'mock-site',
       version: '1.0',
+      supports: () => true,
       navigate: vi.fn().mockResolvedValue(undefined),
       establishNumericState: vi.fn().mockResolvedValue(undefined),
       observeState: vi.fn().mockImplementation(async () => {
@@ -93,6 +94,7 @@ describe('BrowserRunner generic architecture test', () => {
     const mockAdapter: SiteAdapter<Page> = {
       id: 'mock-site',
       version: '1.0',
+      supports: () => true,
       navigate: vi.fn().mockResolvedValue(undefined),
       establishNumericState: vi.fn().mockImplementation(async (page, val) => {
         if (val === 1050) throw new Error("Blocked by bot protection");

@@ -39,6 +39,7 @@ describe('ExperimentExecutor generic pipeline tests', () => {
     const mockAdapter: SiteAdapter<any> = {
       id: 'mock',
       version: '1',
+      supports: () => true,
       navigate: vi.fn(),
       establishNumericState: vi.fn(),
       observeState: vi.fn().mockImplementation(async (page, url) => {
@@ -89,6 +90,7 @@ describe('ExperimentExecutor generic pipeline tests', () => {
     const mockAdapter: SiteAdapter<any> = {
       id: 'mock',
       version: '1',
+      supports: () => true,
       navigate: vi.fn(),
       establishNumericState: vi.fn(),
       observeState: vi.fn()
@@ -124,6 +126,7 @@ describe('ExperimentExecutor generic pipeline tests', () => {
     const mockAdapter: SiteAdapter<any> = {
       id: 'mock',
       version: '1',
+      supports: () => true,
       navigate: vi.fn(),
       establishNumericState: vi.fn(),
       observeState: vi.fn()
@@ -154,6 +157,7 @@ describe('ExperimentExecutor generic pipeline tests', () => {
     const mockAdapter: SiteAdapter<any> = {
       id: 'mock',
       version: '1',
+      supports: () => true,
       navigate: vi.fn(),
       establishNumericState: vi.fn(),
       observeState: vi.fn()
@@ -179,6 +183,7 @@ describe('ExperimentExecutor generic pipeline tests', () => {
     const mockAdapter: SiteAdapter<any> = {
       id: 'mock',
       version: '1',
+      supports: () => true,
       navigate: vi.fn().mockRejectedValue(new Error('Browser crashed')),
       establishNumericState: vi.fn(),
       observeState: vi.fn()
@@ -206,6 +211,7 @@ describe('ExperimentExecutor generic pipeline tests', () => {
     const mockAdapter: SiteAdapter<any> = {
       id: 'mock',
       version: '1',
+      supports: () => true,
       navigate: vi.fn(),
       establishNumericState: vi.fn(),
       observeState: vi.fn().mockResolvedValue({
