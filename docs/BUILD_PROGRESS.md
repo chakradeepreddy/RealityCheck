@@ -198,10 +198,33 @@
    - **Security:** Verified no API keys are present in source, tests, or documentation. Git ignores `.env` cleanly.
    - **Known limitations:** Currently strictly supports `BOUNDARY` experiments with `NUMERIC_THRESHOLD` boundary types, as configured in the existing system.
 
+## Step 6 — Real Chromium E2E Proof
+   - **Objective:** Prove the deterministic architecture works generically, using QuickCart as a controlled benchmark SiteAdapter without leaking business logic into the core engine.
+   - **What was implemented:**
+     - Hardened `DeterministicProbePlanner` to dynamically generate a generic, bounded spread of probes (e.g. baseline, claim-adjacent, additive offsets, proportional multipliers). This replaces the static limited array and allows the pipeline to discover boundaries that are offset by common e-commerce bugs (e.g. flat rate shipping, tax variations) without relying on unbounded LLM hallucinations.
+     - Kept generic components clean: `@realitycheck/executor`, `@realitycheck/browser` (BrowserRunner), `@realitycheck/engines`, and `@realitycheck/verifier` remain completely website-agnostic.
+     - Scaffolded Real Chromium E2E tests for `shipping-bug`, `shipping-honest`, and `insufficient evidence` using Playwright in `packages/browser/src/e2e/QuickCartE2E.test.ts`.
+   - **Real Chromium Results:**
+     - **BLOCKED / NOT RUN**: The actual QuickCart application does not exist in the current workspace. As per the strict rules, E2E success is NOT claimed. 
+     - The tests have been explicitly marked as `.skip('BLOCKED: QuickCart not available')`.
+   - **Security:** Verified `git ls-files -- .env` and `git ls-files -- node_modules` return empty.
+   - **Known limitations:** Real execution cannot proceed without the actual QuickCart application.
+
+## Step 7 — Generic Browser Integration & Adapter Architecture
+   - **Objective:** Make the architecture genuinely integration-ready for real-world websites and the future QuickCart benchmark.
+   - **What was implemented:**
+     - Created `AdapterRegistry` to cleanly resolve `SiteAdapter`s by target URL without polluting the core with website-specific conditionals.
+     - Updated `SiteAdapter` contract to include `supports(url: string)` explicitly handling dynamic resolution.
+     - Hardened `BrowserRunner` to ensure zero QuickCart leakage and strict fail-closed behavior on browser crashes.
+     - Added `FakeSiteAdapter` contract tests in `ExperimentExecutor.integration.test.ts` to prove dependency injection, generic observation collection, and fail-closed architectures work end-to-end without mocking Chromium internals.
+   - **Real Chromium Results:**
+     - **BLOCKED / NOT RUN**: QuickCart is still being built. The `QuickCartE2E.test.ts` remains explicitly skipped. No fake browser results were generated.
+   - **Security:** Verified `git ls-files -- .env` and `git ls-files -- node_modules` return empty. No secrets are tracked.
+
 ## Current Status
-- Current phase: Compiler
-- Current step: Step 5B
-- Overall completion estimate: 65%
+- Current phase: Integration Readiness
+- Current step: Step 7
+- Overall completion estimate: 85%
 
 ## Next Step
-Ready for Step 6 / E2E.
+Implement the QuickCart benchmark application to unblock actual Real Chromium testing, or begin Frontend/Database integrations.

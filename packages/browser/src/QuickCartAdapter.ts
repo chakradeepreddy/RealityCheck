@@ -9,6 +9,12 @@ export class QuickCartAdapter implements SiteAdapter<Page> {
   id = 'quickcart';
   version = '1.0.0';
 
+  supports(url: string): boolean {
+    // QuickCart is a local benchmark running on localhost:3000
+    // Real implementation might check hostname or specific benchmark query params
+    return url.includes('localhost:3000') || url.includes('quickcart');
+  }
+
   async navigate(page: Page, url: string): Promise<void> {
     await page.goto(url, { waitUntil: 'domcontentloaded' });
   }

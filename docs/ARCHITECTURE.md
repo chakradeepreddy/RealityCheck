@@ -1,15 +1,22 @@
 # RealityCheck Architecture
 
 ## System Purpose
-RealityCheck is a hackathon-grade claim-first browser experimentation system. Its goal is to take a natural-language claim (e.g., "Free shipping on orders over $50"), run controlled experiments against a real browser environment, and output a deterministic verdict supported by empirical evidence.
+**RealityCheck is a generic, consumer-facing browser experimentation system.** 
+It is engineered to test claims on real authorized websites. QuickCart is NOT the product; QuickCart is solely a controlled benchmark and laboratory used to validate the deterministic pipeline.
+
+The core architectural principle is: **"AI proposes. Browser observes. Deterministic Code decides."**
 
 ## Core Loop
 The core philosophy is:
 **PROMISE → EXPERIMENT → BROWSER → EVIDENCE → VERDICT → REPLAY**
 
 1. **AI Proposes**: A ClaimCompiler (powered by an LLM) translates a natural-language claim into a strictly structured `ExperimentSpec`.
-2. **Browser Observes**: A SiteAdapter uses Playwright to execute the experiment in Chromium and gathers raw `Observation` data (network, DOM state, screenshots).
-3. **Deterministic Code Decides**: A purely deterministic verifier analyzes the `Observation` against the `ExperimentSpec` and issues a `Verdict`.
+3. **Experiment Executor & Probe Planner**:
+   - `DeterministicProbePlanner`: Generates a bounded, deterministic array of numeric probes (e.g. baseline, claim-adjacent, additive offsets, proportional multipliers) to robustly search for boundary transitions (Phase 1 coarse-search) without LLM hallucinations.
+   - `ExperimentExecutor`: Orchestrates the test using the generated probes.
+4. **Browser Observation**: The runner uses the provided `SiteAdapter` to physically set state and observe the output (e.g. `shippingCost`).
+5. **Boundary Engine**: A deterministic loop finds the lowest state where the condition passes.
+6. **Verifier**: A deterministic code block compares the `observedBoundary` against the claimed `cartSubtotalTarget` and issues a `Verdict`.
 
 ## Architecture Boundaries
 To enforce safety and correctness, the system explicitly separates LLM logic from browser automation and verdict generation:
@@ -44,10 +51,11 @@ The Experiment Executor connects the contracts, browser layer, engines, and veri
 - It is structurally website-agnostic (QuickCart details are injected via SiteAdapters).
 - It safely fails closed: if inputs are invalid or the browser crashes, it generates an `INCONCLUSIVE` verdict without manufacturing evidence or faking data.
 
-### 3. Browser Runner & SiteAdapters (`@realitycheck/browser`)
-The browser layer runs Playwright against live websites to generate deterministic `Observation`s. It is composed of two boundaries:
-- **`BrowserRunner`**: A generic execution engine that iterates through required test states, launches Chromium contexts, manages the observation loop, and fails closed safely if things go wrong. It has **no** knowledge of specific sites.
+### 3. Browser Runner, SiteAdapters, & Registry (`@realitycheck/browser`)
+The browser layer runs Playwright against live websites to generate deterministic `Observation`s. It is composed of three boundaries:
+- **`AdapterRegistry`**: A generic resolution mechanism that explicitly maps target URLs to authorized SiteAdapters. Prevents brittle URL conditionals inside the executor.
 - **`SiteAdapter`**: The site-specific bridge (e.g. `QuickCartAdapter`) that translates generic RealityCheck instructions (e.g. "navigate to start", "establish numeric subtotal 1050", "read shipping DOM") into specific Playwright interactions (`locator.fill`, `locator.click`). Real-world authorized websites simply implement this adapter to plug into the engine safely without bypassing security layers.
+- **`BrowserRunner`**: A generic execution engine that iterates through required test states, launches Chromium contexts, manages the observation loop, and fails closed safely if things go wrong. It has **no** knowledge of specific sites.
 
 ### 4. Boundary Engine (`@realitycheck/engines`)
 Responsible for isolating transition points from an array of `Observation` objects. Purely functional.

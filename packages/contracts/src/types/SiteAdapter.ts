@@ -9,6 +9,11 @@ export interface SiteAdapter<TPage = any> {
   readonly version: string;
 
   /**
+   * Determines if this adapter supports the given target URL.
+   */
+  supports(url: string): boolean;
+
+  /**
    * Instructs the adapter to navigate to the correct starting page.
    */
   navigate(page: TPage, url: string): Promise<void>;

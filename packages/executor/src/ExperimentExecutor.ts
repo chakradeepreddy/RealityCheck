@@ -2,6 +2,7 @@ import { ExperimentSpec, SiteAdapter, Observation, ExperimentSpecSchema } from '
 import { BrowserRunner } from '@realitycheck/browser';
 import { BoundaryEngine } from '@realitycheck/engines';
 import { DeterministicVerifier, VerifierResult } from '@realitycheck/verifier';
+import { DeterministicProbePlanner } from './DeterministicProbePlanner';
 
 export interface ExecutionResult {
   spec: ExperimentSpec;
@@ -18,13 +19,13 @@ export class ExperimentExecutor {
    * 
    * @param spec The experiment specification (claim to test)
    * @param adapter The injected SiteAdapter tailored to the target website
-   * @param probeStates The numeric states to probe (e.g. [999, 1000, 1050])
+   * @param probeStates Optional numeric states to probe. If omitted, generated deterministically.
    * @returns The fully structured ExecutionResult
    */
   static async executeBoundaryExperiment(
     spec: ExperimentSpec,
     adapter: SiteAdapter<any>,
-    probeStates: number[]
+    probeStates?: number[]
   ): Promise<ExecutionResult> {
     // 1. Structural Validation
     const validation = ExperimentSpecSchema.safeParse(spec);
@@ -62,13 +63,17 @@ export class ExperimentExecutor {
       };
     }
 
+    // Determine probes deterministically if not provided
+    const actualProbeStates = probeStates || DeterministicProbePlanner.planNumericBoundaryProbes(expectedCartSubtotalTarget);
+
     // 2. Invoke BrowserRunner
     const runner = new BrowserRunner();
     let observations: Observation[] = [];
     try {
       await runner.init();
       // Execute the browser runner and retrieve array of observations
-      observations = await runner.runBoundaryObservation(spec, adapter, spec.targetUrl, probeStates);
+      observations = await runner.runBoundaryObservation(spec, adapter, spec.targetUrl, actualProbeStates);
+
     } catch (err: any) {
       // Browser failure -> Fail closed as INCONCLUSIVE
       return {
