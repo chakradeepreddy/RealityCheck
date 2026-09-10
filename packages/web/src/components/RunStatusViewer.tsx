@@ -9,13 +9,13 @@ interface RunStatusViewerProps {
 
 export const RunStatusViewer: React.FC<RunStatusViewerProps> = ({ status }) => {
   const config = {
-    NOT_RUN: { icon: Clock, color: 'text-slate-500', bg: 'bg-slate-100', label: 'Not Run' },
-    RUNNING: { icon: Activity, color: 'text-blue-600', bg: 'bg-blue-50', label: 'Running' },
-    COMPLETED: { icon: CheckCircle, color: 'text-green-600', bg: 'bg-green-50', label: 'Completed' },
-    FAILED: { icon: XCircle, color: 'text-red-600', bg: 'bg-red-50', label: 'Failed' },
-    UNSUPPORTED_SITE: { icon: XCircle, color: 'text-orange-600', bg: 'bg-orange-50', label: 'Unsupported Site' },
-    NOT_TESTABLE: { icon: XCircle, color: 'text-yellow-600', bg: 'bg-yellow-50', label: 'Not Testable' },
-  }[status] || { icon: Activity, color: 'text-slate-500', bg: 'bg-slate-100', label: status || 'Unknown' };
+    NOT_RUN: { icon: Clock, color: 'text-slate-muted', bg: 'bg-navy-bg border-navy-border', label: 'Not Run' },
+    RUNNING: { icon: Activity, color: 'text-cyan-accent', bg: 'bg-cyan-accent/10 border-cyan-accent/30', label: 'Running' },
+    COMPLETED: { icon: CheckCircle, color: 'text-verdict-supported', bg: 'bg-verdict-supported/10 border-verdict-supported/30', label: 'Completed' },
+    FAILED: { icon: XCircle, color: 'text-verdict-contradicted', bg: 'bg-verdict-contradicted/10 border-verdict-contradicted/30', label: 'Failed' },
+    UNSUPPORTED_SITE: { icon: XCircle, color: 'text-verdict-inconclusive', bg: 'bg-verdict-inconclusive/10 border-verdict-inconclusive/30', label: 'Unsupported Site' },
+    NOT_TESTABLE: { icon: XCircle, color: 'text-verdict-inconclusive', bg: 'bg-verdict-inconclusive/10 border-verdict-inconclusive/30', label: 'Not Testable' },
+  }[status] || { icon: Activity, color: 'text-slate-muted', bg: 'bg-navy-bg border-navy-border', label: status || 'Unknown' };
 
   const Icon = config.icon;
 

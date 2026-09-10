@@ -4,7 +4,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { ExperimentForm } from './ExperimentForm';
-import React from 'react';
 
 describe('ExperimentForm', () => {
   afterEach(() => {

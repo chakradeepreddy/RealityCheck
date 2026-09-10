@@ -3,8 +3,12 @@ import type { ExecutionMode, Run } from './types';
 import { API_BASE_URL } from '../config';
 
 export class ApiError extends Error {
-  constructor(public status: number, public data: any) {
+  status: number;
+  data: any;
+  constructor(status: number, data: any) {
     super(`API Error: ${status}`);
+    this.status = status;
+    this.data = data;
   }
 }
 

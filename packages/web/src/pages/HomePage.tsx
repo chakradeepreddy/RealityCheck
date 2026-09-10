@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ExperimentForm } from '../components/ExperimentForm';
 import { apiClient } from '../api/client';
@@ -38,12 +38,6 @@ const INTEGRATIONS = [
     desc: 'Controlled local environment — the reference implementation for all three verdicts.'
   }
 ];
-
-const VERDICT_CHIP: Record<string, string> = {
-  SUPPORTED: 'bg-emerald-100 text-emerald-700',
-  CONTRADICTED: 'bg-red-100 text-red-700',
-  INCONCLUSIVE: 'bg-amber-100 text-amber-700'
-};
 
 export function HomePage() {
   const [isLoading, setIsLoading] = useState(false);

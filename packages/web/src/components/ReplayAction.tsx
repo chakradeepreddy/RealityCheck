@@ -15,20 +15,20 @@ export const ReplayAction: React.FC<ReplayActionProps> = ({ runId, onReplay, isL
     <div className="flex flex-col gap-3 w-full">
       <div className="flex flex-col gap-3">
         <select
-          className="w-full px-4 py-3 bg-slate-900/80 border border-slate-700/60 rounded-xl text-slate-200 text-sm font-bold uppercase tracking-widest focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 outline-none transition-all appearance-none cursor-pointer"
+          className="w-full px-4 py-3 bg-navy-surface border border-navy-border rounded-xl text-off-white text-sm font-bold uppercase tracking-widest focus:ring-2 focus:ring-cyan-accent/50 focus:border-cyan-accent/50 outline-none transition-all appearance-none cursor-pointer"
           value={mode}
           onChange={(e) => setMode(e.target.value as ExecutionMode)}
           disabled={isLoading}
           style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 0.5rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.5em 1.5em` }}
         >
-          <option value="CONTROLLED" className="bg-slate-900 text-slate-200">CONTROLLED</option>
-          <option value="AUTHORIZED_LIVE" className="bg-slate-900 text-slate-200">AUTHORIZED LIVE</option>
+          <option value="CONTROLLED" className="bg-navy-bg text-off-white">CONTROLLED</option>
+          <option value="AUTHORIZED_LIVE" className="bg-navy-bg text-off-white">AUTHORIZED LIVE</option>
         </select>
         
         <button
           onClick={() => onReplay(runId, mode)}
           disabled={isLoading}
-          className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_15px_rgba(37,99,235,0.3)] hover:shadow-[0_0_20px_rgba(37,99,235,0.5)] font-bold uppercase tracking-widest py-3 px-4 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all text-xs"
+          className="w-full flex items-center justify-center gap-2 bg-cyan-accent hover:bg-cyan-accent/80 text-navy-bg shadow-[0_0_15px_rgba(34,211,238,0.3)] hover:shadow-[0_0_20px_rgba(34,211,238,0.5)] font-bold uppercase tracking-widest py-3 px-4 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all text-xs"
         >
           {isLoading ? (
             <>

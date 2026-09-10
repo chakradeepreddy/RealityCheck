@@ -1,8 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { RunStatusViewer } from '../components/RunStatusViewer';
-import { VerdictDisplay } from '../components/VerdictDisplay';
-import { EvidencePanel } from '../components/EvidencePanel';
 import { ReplayAction } from '../components/ReplayAction';
 import { apiClient } from '../api/client';
 import type { Run, ExecutionMode } from '../api/types';

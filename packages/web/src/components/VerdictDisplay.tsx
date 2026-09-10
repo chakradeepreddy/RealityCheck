@@ -14,45 +14,45 @@ export const VerdictDisplay: React.FC<VerdictDisplayProps> = ({ verdict, reason 
   const config = {
     SUPPORTED: { 
       icon: CheckCircle2, 
-      color: 'text-emerald-700', 
-      bg: 'bg-emerald-50', 
-      border: 'border-emerald-200',
+      color: 'text-verdict-supported', 
+      bg: 'bg-verdict-supported/10', 
+      border: 'border-verdict-supported/30 shadow-[0_0_20px_rgba(34,197,94,0.15)]',
       label: 'SUPPORTED' 
     },
     CONTRADICTED: { 
       icon: XOctagon, 
-      color: 'text-rose-700', 
-      bg: 'bg-rose-50', 
-      border: 'border-rose-200',
+      color: 'text-verdict-contradicted', 
+      bg: 'bg-verdict-contradicted/10', 
+      border: 'border-verdict-contradicted/30 shadow-[0_0_20px_rgba(239,68,68,0.15)]',
       label: 'CONTRADICTED' 
     },
     INCONCLUSIVE: { 
       icon: HelpCircle, 
-      color: 'text-amber-700', 
-      bg: 'bg-amber-50', 
-      border: 'border-amber-200',
+      color: 'text-verdict-inconclusive', 
+      bg: 'bg-verdict-inconclusive/10', 
+      border: 'border-verdict-inconclusive/30 shadow-[0_0_20px_rgba(245,158,11,0.15)]',
       label: 'INCONCLUSIVE' 
     },
   }[verdict] || {
     icon: HelpCircle,
-    color: 'text-slate-700',
-    bg: 'bg-slate-50',
-    border: 'border-slate-200',
+    color: 'text-slate-muted',
+    bg: 'bg-navy-bg',
+    border: 'border-navy-border',
     label: verdict || 'UNKNOWN'
   };
 
   const Icon = config.icon;
 
   return (
-    <div className={clsx('p-6 rounded-xl border-2 mb-6 shadow-sm', config.bg, config.border)}>
+    <div className={clsx('p-6 rounded-xl border mb-6', config.bg, config.border)}>
       <div className="flex items-start gap-4">
         <Icon className={clsx('w-8 h-8 mt-1 flex-shrink-0', config.color)} />
         <div>
-          <h2 className={clsx('text-2xl font-bold tracking-tight mb-2', config.color)}>
+          <h2 className={clsx('text-2xl font-black tracking-tight mb-2 text-glow', config.color)}>
             {config.label}
           </h2>
           {reason && (
-            <p className="text-slate-700 text-lg leading-relaxed">
+            <p className="text-off-white font-medium text-lg leading-relaxed">
               {reason}
             </p>
           )}

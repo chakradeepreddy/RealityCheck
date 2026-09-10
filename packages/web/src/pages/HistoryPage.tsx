@@ -4,9 +4,9 @@ import { apiClient } from '../api/client';
 import type { Run } from '../api/types';
 
 const VERDICT_BADGE: Record<string, string> = {
-  SUPPORTED: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30 shadow-[0_0_10px_rgba(16,185,129,0.2)]',
-  CONTRADICTED: 'bg-rose-500/20 text-rose-300 border-rose-500/30 shadow-[0_0_10px_rgba(244,63,94,0.2)]',
-  INCONCLUSIVE: 'bg-amber-500/20 text-amber-300 border-amber-500/30 shadow-[0_0_10px_rgba(245,158,11,0.2)]'
+  SUPPORTED: 'bg-verdict-supported/20 text-verdict-supported border-verdict-supported/30 shadow-[0_0_10px_rgba(34,197,94,0.2)]',
+  CONTRADICTED: 'bg-verdict-contradicted/20 text-verdict-contradicted border-verdict-contradicted/30 shadow-[0_0_10px_rgba(239,68,68,0.2)]',
+  INCONCLUSIVE: 'bg-verdict-inconclusive/20 text-verdict-inconclusive border-verdict-inconclusive/30 shadow-[0_0_10px_rgba(245,158,11,0.2)]'
 };
 
 export function HistoryPage() {
@@ -50,7 +50,7 @@ export function HistoryPage() {
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-off-white" />
       </div>
     );
   }
@@ -63,27 +63,27 @@ export function HistoryPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-black tracking-tight text-white text-glow">VERIFICATION HISTORY</h1>
-        <span className="text-sm font-bold text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/30">{runs.length} RUN{runs.length !== 1 ? 'S' : ''}</span>
+        <span className="text-sm font-bold text-cyan-accent bg-cyan-accent/10 px-3 py-1 rounded-full border border-cyan-accent/30">{runs.length} RUN{runs.length !== 1 ? 'S' : ''}</span>
       </div>
 
       <div className="grid gap-6">
         {runs.length === 0 ? (
-          <div className="text-center py-20 text-slate-400 glass-panel rounded-2xl">
-            <p className="text-xl font-bold mb-2 text-slate-300">No verification runs yet</p>
+          <div className="text-center py-20 text-slate-muted glass-panel rounded-2xl">
+            <p className="text-xl font-bold mb-2 text-off-white">No verification runs yet</p>
             <p className="text-sm">Use the quick presets on the home page to get started.</p>
           </div>
         ) : (
           runs.map(run => (
             <div
               key={run.id}
-              className="glass-panel rounded-xl p-6 transition-all hover:border-blue-500/40 hover:shadow-[0_0_20px_rgba(59,130,246,0.15)] relative group"
+              className="glass-panel rounded-xl p-6 transition-all hover:border-cyan-accent/40 hover:shadow-[0_0_20px_rgba(34,211,238,0.15)] relative group"
             >
               {/* Delete button — top right */}
               <button
                 id={`delete-run-${run.id}`}
                 onClick={(e) => handleDelete(run.id, e)}
                 disabled={deletingId === run.id}
-                className="absolute top-4 right-4 p-2 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors disabled:opacity-40"
+                className="absolute top-4 right-4 p-2 rounded-lg text-slate-muted hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-40"
                 title="Delete run"
                 aria-label="Delete run"
               >
@@ -107,12 +107,12 @@ export function HistoryPage() {
                     }`}>
                       {run.verdict || '—'}
                     </span>
-                    <span className="text-xs bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700/50 text-slate-300 font-bold tracking-wide uppercase">{run.primitive}</span>
-                    <span className="text-xs text-slate-500 font-mono">({run.executionMode})</span>
+                    <span className="text-xs bg-navy-surface/80 px-2 py-0.5 rounded border border-navy-border text-off-white font-bold tracking-wide uppercase">{run.primitive}</span>
+                    <span className="text-xs text-slate-muted font-mono">({run.executionMode})</span>
                   </div>
-                  <h3 className="text-xl font-bold text-slate-100 line-clamp-2 leading-snug group-hover:text-blue-200 transition-colors">{run.claim}</h3>
+                  <h3 className="text-xl font-bold text-off-white line-clamp-2 leading-snug group-hover:text-cyan-accent transition-colors">{run.claim}</h3>
                 </div>
-                <div className="text-left sm:text-right text-[10px] font-bold tracking-widest uppercase text-slate-500 shrink-0 bg-slate-900/50 px-3 py-2 rounded-lg border border-slate-800/60">
+                <div className="text-left sm:text-right text-[10px] font-bold tracking-widest uppercase text-slate-muted shrink-0 bg-navy-bg px-3 py-2 rounded-lg border border-navy-border">
                   {new Date(run.startedAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
                   <span className="sm:hidden mx-2"> &middot; </span>
                   <br className="hidden sm:block" />
@@ -120,29 +120,29 @@ export function HistoryPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm mb-6 bg-slate-900/30 p-4 rounded-xl border border-slate-800/40">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm mb-6 bg-navy-bg p-4 rounded-xl border border-navy-border">
                 <div>
-                  <span className="text-slate-500 block mb-1 text-[10px] uppercase font-bold tracking-widest">Target:</span>
-                  <a href={run.targetUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 hover:underline break-all text-xs font-mono font-medium">
+                  <span className="text-slate-muted block mb-1 text-[10px] uppercase font-bold tracking-widest">Target:</span>
+                  <a href={run.targetUrl} target="_blank" rel="noopener noreferrer" className="text-cyan-accent hover:text-cyan-accent/80 hover:underline break-all text-xs font-mono font-medium">
                     {new URL(run.targetUrl).hostname}
                   </a>
                 </div>
                 <div>
-                  <span className="text-slate-500 block mb-1 text-[10px] uppercase font-bold tracking-widest">Reason:</span>
-                  <span className="text-slate-300 text-xs line-clamp-2 leading-relaxed">{run.verdictReason || 'No summary available.'}</span>
+                  <span className="text-slate-muted block mb-1 text-[10px] uppercase font-bold tracking-widest">Reason:</span>
+                  <span className="text-off-white text-xs line-clamp-2 leading-relaxed">{run.verdictReason || 'No summary available.'}</span>
                 </div>
               </div>
 
               <div className="flex gap-3">
                 <Link
                   to={`/runs/${run.id}`}
-                  className="inline-flex items-center justify-center px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_15px_rgba(37,99,235,0.3)] hover:shadow-[0_0_20px_rgba(37,99,235,0.5)] text-xs font-bold uppercase tracking-wider rounded-lg transition-all"
+                  className="inline-flex items-center justify-center px-5 py-2.5 bg-cyan-accent hover:bg-cyan-accent/90 text-navy-bg shadow-[0_0_15px_rgba(34,211,238,0.3)] hover:shadow-[0_0_20px_rgba(34,211,238,0.5)] text-xs font-bold uppercase tracking-wider rounded-lg transition-all"
                 >
                   View Details
                 </Link>
                 <Link
                   to={`/runs/${run.id}?action=replay`}
-                  className="inline-flex items-center justify-center px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 hover:border-slate-500 text-xs font-bold uppercase tracking-wider rounded-lg transition-all"
+                  className="inline-flex items-center justify-center px-5 py-2.5 bg-navy-surface hover:bg-navy-surface/80 text-off-white border border-navy-border hover:border-cyan-accent text-xs font-bold uppercase tracking-wider rounded-lg transition-all"
                 >
                   Replay
                 </Link>
