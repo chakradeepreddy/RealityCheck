@@ -117,42 +117,45 @@ export const ExperimentForm: React.FC<ExperimentFormProps> = ({ onSubmit, isLoad
     <div className="space-y-6">
       {/* Quick Presets */}
       <div>
-        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">
+        <h3 className="text-sm font-bold text-slate-300 uppercase tracking-widest mb-4 text-glow">
           Quick Presets — Browser-Verified Sites
         </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {PRESETS.map((preset) => (
             <button
               key={preset.label}
               type="button"
               onClick={() => applyPreset(preset)}
               disabled={isLoading}
-              className={`text-left p-3 rounded-lg border transition-all hover:shadow-sm disabled:opacity-50 ${
+              className={`text-left p-4 rounded-xl border transition-all disabled:opacity-40 group ${
                 activePreset === preset.label
-                  ? 'border-slate-900 bg-slate-50 shadow-sm'
-                  : 'border-slate-200 bg-white hover:border-slate-400'
+                  ? 'border-blue-500 bg-blue-500/10 shadow-[0_0_15px_rgba(59,130,246,0.2)]'
+                  : 'glass-panel hover:border-blue-500/50 hover:bg-slate-800/80'
               }`}
             >
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs text-slate-800 font-bold uppercase tracking-wider bg-slate-100 px-2 py-0.5 rounded">{preset.site}</span>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-[10px] text-blue-300 font-bold uppercase tracking-widest bg-blue-500/20 px-2.5 py-1 rounded-md border border-blue-500/30">{preset.site}</span>
               </div>
-              <p className="text-sm font-semibold text-slate-900 mb-1">{preset.claim.substring(0, 60)}{preset.claim.length > 60 ? '…' : ''}</p>
-              <p className="text-xs text-slate-500">{preset.description}</p>
+              <p className="text-sm font-bold text-slate-200 mb-2 leading-tight group-hover:text-white transition-colors">{preset.claim.substring(0, 60)}{preset.claim.length > 60 ? '…' : ''}</p>
+              <p className="text-xs text-slate-400 leading-relaxed">{preset.description}</p>
             </button>
           ))}
         </div>
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="glass-panel p-6 md:p-8 rounded-2xl space-y-6 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+        
         <div>
-          <label htmlFor="url" className="block text-sm font-medium text-slate-700 mb-1">
+          <label htmlFor="url" className="block text-sm font-bold tracking-wide text-slate-300 mb-2">
             Target URL
           </label>
           <input
             id="url"
             type="url"
-            className="w-full px-4 py-2 border border-slate-300 rounded-md focus:ring-accent focus:border-accent"
+            className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 text-slate-200 placeholder-slate-500 transition-all outline-none"
             placeholder="https://example.com"
             value={url}
             onChange={(e) => { setUrl(e.target.value); setActivePreset(null); }}
@@ -162,12 +165,12 @@ export const ExperimentForm: React.FC<ExperimentFormProps> = ({ onSubmit, isLoad
         </div>
 
         <div>
-          <label htmlFor="claim" className="block text-sm font-medium text-slate-700 mb-1">
+          <label htmlFor="claim" className="block text-sm font-bold tracking-wide text-slate-300 mb-2">
             Claim
           </label>
           <textarea
             id="claim"
-            className="w-full px-4 py-2 border border-slate-300 rounded-md focus:ring-accent focus:border-accent min-h-[90px]"
+            className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 text-slate-200 placeholder-slate-500 min-h-[100px] transition-all outline-none resize-y"
             placeholder="e.g. Free shipping on orders over $50"
             value={claim}
             onChange={(e) => { setClaim(e.target.value); setActivePreset(null); }}
@@ -177,14 +180,14 @@ export const ExperimentForm: React.FC<ExperimentFormProps> = ({ onSubmit, isLoad
         </div>
 
         <div>
-          <label htmlFor="attachment" className="block text-sm font-medium text-slate-700 mb-1">
-            Claim Evidence / Attachment <span className="text-slate-400 font-normal">(Optional — screenshot of the claim)</span>
+          <label htmlFor="attachment" className="block text-sm font-bold tracking-wide text-slate-300 mb-2">
+            Claim Evidence / Attachment <span className="text-slate-500 font-normal ml-1">(Optional screenshot)</span>
           </label>
           <input
             id="attachment"
             type="file"
             accept="image/png, image/jpeg, image/webp"
-            className="w-full px-4 py-2 border border-slate-300 rounded-md focus:ring-accent focus:border-accent text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200"
+            className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 text-sm text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-blue-500/20 file:text-blue-400 hover:file:bg-blue-500/30 file:transition-colors file:cursor-pointer outline-none transition-all cursor-pointer"
             onChange={(e) => {
               const file = e.target.files?.[0] || null;
               setAttachment(file);
@@ -194,23 +197,30 @@ export const ExperimentForm: React.FC<ExperimentFormProps> = ({ onSubmit, isLoad
         </div>
 
         <div>
-          <label htmlFor="mode" className="block text-sm font-medium text-slate-700 mb-1">
+          <label htmlFor="mode" className="block text-sm font-bold tracking-wide text-slate-300 mb-2">
             Execution Mode
           </label>
-          <select
-            id="mode"
-            className="w-full px-4 py-2 border border-slate-300 rounded-md focus:ring-accent focus:border-accent"
-            value={mode}
-            onChange={(e) => setMode(e.target.value as ExecutionMode)}
-            disabled={isLoading}
-          >
-            <option value="CONTROLLED">CONTROLLED (Local / Mock Environment)</option>
-            <option value="AUTHORIZED_LIVE">AUTHORIZED_LIVE (Real Public Website)</option>
-          </select>
+          <div className="relative">
+            <select
+              id="mode"
+              className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 text-slate-200 transition-all outline-none appearance-none cursor-pointer"
+              value={mode}
+              onChange={(e) => setMode(e.target.value as ExecutionMode)}
+              disabled={isLoading}
+            >
+              <option value="CONTROLLED" className="bg-slate-900">CONTROLLED (Local / Mock Environment)</option>
+              <option value="AUTHORIZED_LIVE" className="bg-slate-900">AUTHORIZED_LIVE (Real Public Website)</option>
+            </select>
+            <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-slate-400">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </div>
+          </div>
         </div>
 
         {error && (
-          <div className="text-red-600 text-sm p-3 bg-red-50 rounded-md border border-red-100">
+          <div className="text-red-400 text-sm p-4 bg-red-500/10 rounded-xl border border-red-500/20 font-medium">
             {error}
           </div>
         )}
@@ -218,17 +228,20 @@ export const ExperimentForm: React.FC<ExperimentFormProps> = ({ onSubmit, isLoad
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full bg-slate-900 text-white font-medium py-3 px-4 rounded-md hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="w-full relative group overflow-hidden bg-blue-600 text-white font-bold tracking-wide py-4 px-6 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(37,99,235,0.4)] hover:shadow-[0_0_30px_rgba(37,99,235,0.6)] transition-all"
         >
-                  {isLoading ? (
-            <span className="flex items-center justify-center gap-2">
-              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-              </svg>
-              Running experiment...
-            </span>
-          ) : 'Run Check'}
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 group-hover:scale-105 transition-transform duration-300" />
+          <span className="relative z-10">
+            {isLoading ? (
+              <span className="flex items-center justify-center gap-3">
+                <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                </svg>
+                Running verification...
+              </span>
+            ) : 'RUN REALITYCHECK'}
+          </span>
         </button>
       </form>
     </div>

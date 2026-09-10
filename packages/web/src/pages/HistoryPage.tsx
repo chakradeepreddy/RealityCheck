@@ -4,9 +4,9 @@ import { apiClient } from '../api/client';
 import type { Run } from '../api/types';
 
 const VERDICT_BADGE: Record<string, string> = {
-  SUPPORTED: 'bg-emerald-100 text-emerald-800',
-  CONTRADICTED: 'bg-red-100 text-red-800',
-  INCONCLUSIVE: 'bg-amber-100 text-amber-800'
+  SUPPORTED: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30 shadow-[0_0_10px_rgba(16,185,129,0.2)]',
+  CONTRADICTED: 'bg-rose-500/20 text-rose-300 border-rose-500/30 shadow-[0_0_10px_rgba(244,63,94,0.2)]',
+  INCONCLUSIVE: 'bg-amber-500/20 text-amber-300 border-amber-500/30 shadow-[0_0_10px_rgba(245,158,11,0.2)]'
 };
 
 export function HistoryPage() {
@@ -61,29 +61,29 @@ export function HistoryPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">VERIFICATION HISTORY</h1>
-        <span className="text-sm text-slate-400">{runs.length} run{runs.length !== 1 ? 's' : ''}</span>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-black tracking-tight text-white text-glow">VERIFICATION HISTORY</h1>
+        <span className="text-sm font-bold text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/30">{runs.length} RUN{runs.length !== 1 ? 'S' : ''}</span>
       </div>
 
-      <div className="grid gap-4">
+      <div className="grid gap-6">
         {runs.length === 0 ? (
-          <div className="text-center py-16 text-slate-400">
-            <p className="text-lg font-medium mb-2">No verification runs yet</p>
+          <div className="text-center py-20 text-slate-400 glass-panel rounded-2xl">
+            <p className="text-xl font-bold mb-2 text-slate-300">No verification runs yet</p>
             <p className="text-sm">Use the quick presets on the home page to get started.</p>
           </div>
         ) : (
           runs.map(run => (
             <div
               key={run.id}
-              className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow relative"
+              className="glass-panel rounded-xl p-6 transition-all hover:border-blue-500/40 hover:shadow-[0_0_20px_rgba(59,130,246,0.15)] relative group"
             >
               {/* Delete button — top right */}
               <button
                 id={`delete-run-${run.id}`}
                 onClick={(e) => handleDelete(run.id, e)}
                 disabled={deletingId === run.id}
-                className="absolute top-4 right-4 p-1.5 rounded-md text-slate-300 hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-40"
+                className="absolute top-4 right-4 p-2 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors disabled:opacity-40"
                 title="Delete run"
                 aria-label="Delete run"
               >
@@ -99,50 +99,50 @@ export function HistoryPage() {
                 )}
               </button>
 
-              <div className="flex flex-col sm:flex-row justify-between items-start mb-4 sm:pr-10 gap-2 sm:gap-0">
+              <div className="flex flex-col sm:flex-row justify-between items-start mb-4 sm:pr-12 gap-3 sm:gap-0">
                 <div>
-                  <div className="flex items-center gap-3 mb-2 flex-wrap">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${
+                  <div className="flex items-center gap-3 mb-3 flex-wrap">
+                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
                       VERDICT_BADGE[run.verdict || 'INCONCLUSIVE'] || VERDICT_BADGE.INCONCLUSIVE
                     }`}>
                       {run.verdict || '—'}
                     </span>
-                    <span className="text-sm text-slate-500 font-medium">{run.primitive}</span>
-                    <span className="text-sm text-slate-400">({run.executionMode})</span>
+                    <span className="text-xs bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700/50 text-slate-300 font-bold tracking-wide uppercase">{run.primitive}</span>
+                    <span className="text-xs text-slate-500 font-mono">({run.executionMode})</span>
                   </div>
-                  <h3 className="text-lg font-semibold text-slate-900 line-clamp-2">{run.claim}</h3>
+                  <h3 className="text-xl font-bold text-slate-100 line-clamp-2 leading-snug group-hover:text-blue-200 transition-colors">{run.claim}</h3>
                 </div>
-                <div className="text-left sm:text-right text-sm text-slate-400 shrink-0">
+                <div className="text-left sm:text-right text-[10px] font-bold tracking-widest uppercase text-slate-500 shrink-0 bg-slate-900/50 px-3 py-2 rounded-lg border border-slate-800/60">
                   {new Date(run.startedAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
-                  <span className="sm:hidden"> &middot; </span>
+                  <span className="sm:hidden mx-2"> &middot; </span>
                   <br className="hidden sm:block" />
                   {new Date(run.startedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm mb-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm mb-6 bg-slate-900/30 p-4 rounded-xl border border-slate-800/40">
                 <div>
-                  <span className="text-slate-500 block mb-0.5">Target:</span>
-                  <a href={run.targetUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline break-all text-xs font-mono">
+                  <span className="text-slate-500 block mb-1 text-[10px] uppercase font-bold tracking-widest">Target:</span>
+                  <a href={run.targetUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 hover:underline break-all text-xs font-mono font-medium">
                     {new URL(run.targetUrl).hostname}
                   </a>
                 </div>
                 <div>
-                  <span className="text-slate-500 block mb-0.5">Reason:</span>
-                  <span className="text-slate-700 text-xs line-clamp-2">{run.verdictReason || 'No summary available.'}</span>
+                  <span className="text-slate-500 block mb-1 text-[10px] uppercase font-bold tracking-widest">Reason:</span>
+                  <span className="text-slate-300 text-xs line-clamp-2 leading-relaxed">{run.verdictReason || 'No summary available.'}</span>
                 </div>
               </div>
 
               <div className="flex gap-3">
                 <Link
                   to={`/runs/${run.id}`}
-                  className="inline-flex items-center justify-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 focus:outline-none transition-colors"
+                  className="inline-flex items-center justify-center px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_15px_rgba(37,99,235,0.3)] hover:shadow-[0_0_20px_rgba(37,99,235,0.5)] text-xs font-bold uppercase tracking-wider rounded-lg transition-all"
                 >
-                  View Details →
+                  View Details
                 </Link>
                 <Link
                   to={`/runs/${run.id}?action=replay`}
-                  className="inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none transition-colors"
+                  className="inline-flex items-center justify-center px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 hover:border-slate-500 text-xs font-bold uppercase tracking-wider rounded-lg transition-all"
                 >
                   Replay
                 </Link>

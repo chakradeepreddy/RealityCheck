@@ -105,79 +105,78 @@ export function RunDetailsPage() {
           {/* VERDICT SUMMARY */}
           <div>
             <div className={`inline-flex px-6 py-3 rounded-full text-lg font-black uppercase tracking-widest mb-4 border ${
-              currentRun.verdict === 'SUPPORTED' ? 'bg-gradient-to-r from-emerald-50 to-emerald-100 text-emerald-800 border-emerald-200 shadow-[0_0_15px_rgba(16,185,129,0.15)]' :
-              currentRun.verdict === 'CONTRADICTED' ? 'bg-gradient-to-r from-rose-50 to-rose-100 text-rose-800 border-rose-200 shadow-[0_0_15px_rgba(244,63,94,0.15)]' :
-              'bg-gradient-to-r from-slate-50 to-slate-100 text-slate-800 border-slate-200 shadow-sm'
+              currentRun.verdict === 'SUPPORTED' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30 shadow-[0_0_20px_rgba(16,185,129,0.2)]' :
+              currentRun.verdict === 'CONTRADICTED' ? 'bg-rose-500/20 text-rose-300 border-rose-500/30 shadow-[0_0_20px_rgba(244,63,94,0.2)]' :
+              'bg-slate-800/80 text-slate-300 border-slate-700/50 shadow-sm'
             }`}>
               {currentRun.verdict}
             </div>
-            <h3 className="text-2xl font-semibold text-slate-900 mb-2">Claim: {currentRun.claim}</h3>
-            <p className="text-slate-600">Target: <a href={currentRun.targetUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">{currentRun.targetUrl}</a></p>
+            <h3 className="text-2xl font-black text-white mb-2 text-glow">Claim: {currentRun.claim}</h3>
+            <p className="text-slate-400">Target: <a href={currentRun.targetUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 hover:underline font-medium">{currentRun.targetUrl}</a></p>
             <p className="text-slate-500 text-sm mt-1">Verified: {new Date(currentRun.startedAt).toLocaleString()}</p>
           </div>
 
-          <hr className="border-slate-200" />
+          <hr className="border-slate-800/60" />
 
-          {/* WHY? */}
           <section>
-            <h4 className="text-lg font-bold text-slate-900 mb-3">WHY?</h4>
-            <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-              <p className="text-slate-700 font-medium">{currentRun.verdictReason || 'No detailed reason provided.'}</p>
+            <h4 className="text-lg font-bold text-slate-200 mb-3 tracking-wide">WHY?</h4>
+            <div className="glass-panel p-4 rounded-xl">
+              <p className="text-slate-300 font-medium break-words whitespace-pre-wrap">{currentRun.verdictReason || 'No detailed reason provided.'}</p>
             </div>
           </section>
 
-          <hr className="border-slate-200" />
+          <hr className="border-slate-800/60" />
 
           {/* WHAT WE TESTED */}
           {(currentRun.status === 'COMPLETED' || (currentRun.observations && currentRun.observations.length > 0)) && (
             <>
               <section>
-                <h4 className="text-lg font-bold text-slate-900 mb-3">WHAT WE TESTED</h4>
-                <div className="bg-white p-4 rounded-lg border border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <h4 className="text-lg font-bold text-slate-200 mb-3 tracking-wide">WHAT WE TESTED</h4>
+                <div className="glass-panel p-4 rounded-xl grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <span className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Primitive</span>
-                    <span className="text-slate-900 break-words">{currentRun.primitive}</span>
+                    <span className="block text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1">Primitive</span>
+                    <span className="text-slate-200 break-words font-medium">{currentRun.primitive}</span>
                   </div>
                   <div>
-                    <span className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Execution Mode</span>
-                    <span className="text-slate-900 break-words">{currentRun.executionMode}</span>
+                    <span className="block text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1">Execution Mode</span>
+                    <span className="text-slate-200 break-words font-medium">{currentRun.executionMode}</span>
                   </div>
                 </div>
               </section>
 
-              <hr className="border-slate-200" />
+              <hr className="border-slate-800/60" />
 
               {/* RUNTIME EVIDENCE */}
               <section>
-                <h4 className="text-xl font-extrabold text-slate-900 mb-4 tracking-tight border-b-2 border-slate-200 pb-2">VERIFICATION PROOFS</h4>
+                <h4 className="text-xl font-black text-white mb-4 tracking-wide border-b-2 border-slate-800/60 pb-2 text-glow">VERIFICATION PROOFS</h4>
                 {currentRun.observations && currentRun.observations.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     {currentRun.observations.map((obs, idx) => (
-                      <div key={idx} className="border border-slate-300 rounded-xl overflow-hidden bg-white shadow-md hover:shadow-lg transition-shadow">
+                      <div key={idx} className="glass-panel rounded-xl overflow-hidden shadow-lg group hover:border-blue-500/30 transition-all">
                         {obs.evidenceRefs?.screenshotPath ? (
-                          <a href={`${API_BASE_URL}/evidence/${obs.evidenceRefs.screenshotPath}`} target="_blank" rel="noopener noreferrer" className="block relative group bg-slate-100 border-b border-slate-200">
+                          <a href={`${API_BASE_URL}/evidence/${obs.evidenceRefs.screenshotPath}`} target="_blank" rel="noopener noreferrer" className="block relative border-b border-slate-800/60">
                             <img src={`${API_BASE_URL}/evidence/${obs.evidenceRefs.screenshotPath}`} alt={`Observation ${idx}`} className="w-full h-auto object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-4">
-                              <span className="text-white text-sm font-semibold drop-shadow-md">🔍 Click to expand proof</span>
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#0b0f19] to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-4">
+                              <span className="text-blue-300 text-sm font-bold tracking-wide text-glow">🔍 Click to expand proof</span>
                             </div>
                           </a>
                         ) : (
-                          <div className="aspect-video bg-slate-50 border-b border-slate-200 flex items-center justify-center text-slate-400 text-sm">
+                          <div className="aspect-video bg-slate-900/50 border-b border-slate-800/60 flex items-center justify-center text-slate-500 text-sm">
                             No Screenshot
                           </div>
                         )}
-                        <div className="p-4 bg-slate-50">
-                          <div className="text-sm font-bold text-slate-600 mb-2 uppercase tracking-wide">Observation {idx + 1} State</div>
+                        <div className="p-4 bg-slate-900/30">
+                          <div className="text-[10px] font-bold text-blue-400 mb-2 uppercase tracking-widest">Observation {idx + 1} State</div>
                           {obs.pageState ? (
-                            <pre className="text-xs text-slate-800 font-mono whitespace-pre-wrap bg-white p-2 rounded border border-slate-200">
+                            <pre className="text-xs text-slate-300 font-mono whitespace-pre-wrap bg-slate-900 p-3 rounded-lg border border-slate-800 overflow-x-auto max-h-48 custom-scrollbar">
                               {JSON.stringify(obs.pageState, null, 2)}
                             </pre>
                           ) : obs.canaryMarkers ? (
-                            <pre className="text-xs text-slate-800 font-mono whitespace-pre-wrap bg-white p-2 rounded border border-slate-200">
+                            <pre className="text-xs text-slate-300 font-mono whitespace-pre-wrap bg-slate-900 p-3 rounded-lg border border-slate-800 overflow-x-auto max-h-48 custom-scrollbar">
                               {JSON.stringify(obs.canaryMarkers, null, 2)}
                             </pre>
                           ) : (
-                            <span className="text-xs text-slate-400">No structured state</span>
+                            <span className="text-xs text-slate-500">No structured state</span>
                           )}
                         </div>
                       </div>
@@ -191,32 +190,32 @@ export function RunDetailsPage() {
               {/* CLAIM REFERENCE */}
               {currentRun.claimAttachmentPath && (
                 <>
-                  <hr className="border-slate-200" />
+                  <hr className="border-slate-800/60" />
                   <section>
-                    <h4 className="text-lg font-bold text-slate-900 mb-3">CLAIM REFERENCE</h4>
-                    <div className="bg-purple-50 border border-purple-100 rounded-lg p-4 mb-3">
-                      <p className="text-sm text-purple-800 font-medium">User-provided claim context — not used to determine verdict.</p>
+                    <h4 className="text-lg font-bold text-slate-200 mb-3 tracking-wide">CLAIM REFERENCE</h4>
+                    <div className="bg-purple-900/20 border border-purple-500/30 rounded-xl p-4 mb-3">
+                      <p className="text-sm text-purple-300 font-medium">User-provided claim context — not used to determine verdict.</p>
                     </div>
-                    <a href={`${API_BASE_URL}/evidence/${currentRun.claimAttachmentPath}`} target="_blank" rel="noopener noreferrer" className="block max-w-sm rounded-lg overflow-hidden border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                    <a href={`${API_BASE_URL}/evidence/${currentRun.claimAttachmentPath}`} target="_blank" rel="noopener noreferrer" className="block max-w-sm rounded-xl overflow-hidden border border-slate-700/50 shadow-md hover:border-blue-500/50 transition-all">
                       <img src={`${API_BASE_URL}/evidence/${currentRun.claimAttachmentPath}`} alt="Claim Reference" className="w-full h-auto" />
                     </a>
                   </section>
                 </>
               )}
 
-              <hr className="border-slate-200" />
+              <hr className="border-slate-800/60" />
 
               {/* VERIFICATION RESULTS */}
               <section>
-                <h4 className="text-lg font-bold text-slate-900 mb-3">FINAL VERDICT METRICS</h4>
-                <div className="bg-gradient-to-br from-white to-slate-50 p-6 rounded-xl border border-slate-300 shadow-sm space-y-4">
+                <h4 className="text-lg font-bold text-slate-200 mb-3 tracking-wide">FINAL VERDICT METRICS</h4>
+                <div className="glass-panel p-6 rounded-xl space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-500 font-semibold uppercase tracking-wider text-sm">Claimed Condition</span>
-                    <span className="text-slate-900 font-black text-xl bg-slate-100 px-4 py-1.5 rounded-lg border border-slate-200">{currentRun.claimedBoundary !== null ? currentRun.claimedBoundary : 'N/A'}</span>
+                    <span className="text-blue-400 font-bold uppercase tracking-widest text-[10px]">Claimed Condition</span>
+                    <span className="text-slate-100 font-black text-xl bg-slate-900 px-4 py-1.5 rounded-lg border border-slate-700/50">{currentRun.claimedBoundary !== null ? currentRun.claimedBoundary : 'N/A'}</span>
                   </div>
-                  <div className="flex justify-between items-center border-t border-slate-200 pt-4">
-                    <span className="text-slate-500 font-semibold uppercase tracking-wider text-sm">Observed Condition</span>
-                    <span className="text-blue-900 font-black text-xl bg-blue-50 px-4 py-1.5 rounded-lg border border-blue-200">{currentRun.observedBoundary !== null ? currentRun.observedBoundary : 'N/A'}</span>
+                  <div className="flex justify-between items-center border-t border-slate-800/60 pt-4">
+                    <span className="text-blue-400 font-bold uppercase tracking-widest text-[10px]">Observed Condition</span>
+                    <span className="text-emerald-300 font-black text-xl bg-emerald-900/20 px-4 py-1.5 rounded-lg border border-emerald-500/30">{currentRun.observedBoundary !== null ? currentRun.observedBoundary : 'N/A'}</span>
                   </div>
                 </div>
               </section>
@@ -226,34 +225,35 @@ export function RunDetailsPage() {
         </div>
         
         <div className="space-y-6">
-          <div className="bg-gradient-to-b from-white to-slate-50 p-6 rounded-2xl border border-slate-200 shadow-md sticky top-6">
-            <h3 className="font-semibold text-slate-800 mb-4 text-sm uppercase tracking-wider">Run Metadata</h3>
-            <dl className="space-y-4 text-sm mb-6">
+          <div className="glass-panel p-6 rounded-2xl sticky top-[88px] relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+            <h3 className="font-bold text-white mb-4 text-[10px] uppercase tracking-widest text-glow">Run Metadata</h3>
+            <dl className="space-y-4 text-sm mb-6 relative z-10">
               <div>
-                <dt className="text-slate-500 mb-1">Run ID</dt>
-                <dd className="font-mono text-xs break-all text-slate-700 bg-slate-50 p-2 rounded border border-slate-100">{currentRun.id}</dd>
+                <dt className="text-slate-400 mb-1 text-[10px] uppercase tracking-widest font-bold">Run ID</dt>
+                <dd className="font-mono text-xs break-all text-slate-300 bg-slate-900/50 p-2 rounded-lg border border-slate-800/60">{currentRun.id}</dd>
               </div>
               <div>
-                <dt className="text-slate-500 mb-1">Status</dt>
+                <dt className="text-slate-400 mb-1 text-[10px] uppercase tracking-widest font-bold">Status</dt>
                 <dd><RunStatusViewer status={currentRun.status} /></dd>
               </div>
             </dl>
             
-            <div className="border-t border-slate-200 pt-6">
-              <h4 className="font-semibold text-slate-800 mb-2">REPLAY</h4>
-              <p className="text-xs text-slate-500 mb-4">Replay uses the stored ExperimentSpec and does not recompile the claim.</p>
+            <div className="border-t border-slate-800/60 pt-6 relative z-10">
+              <h4 className="font-bold text-white mb-2 text-[10px] uppercase tracking-widest text-glow">REPLAY</h4>
+              <p className="text-xs text-slate-400 mb-4">Replay uses the stored ExperimentSpec and does not recompile the claim.</p>
               {(currentRun.status === 'COMPLETED' || currentRun.status === 'FAILED') && (
                 <ReplayAction runId={currentRun.id} onReplay={handleReplay} isLoading={isReplaying} />
               )}
             </div>
 
-            <div className="border-t border-slate-200 pt-6 mt-6">
-              <h4 className="font-semibold text-slate-800 mb-2">DANGER ZONE</h4>
+            <div className="border-t border-slate-800/60 pt-6 mt-6 relative z-10">
+              <h4 className="font-bold text-rose-400 mb-2 text-[10px] uppercase tracking-widest text-glow">DANGER ZONE</h4>
               <button
                 id={`delete-run-${currentRun.id}`}
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-md text-red-600 bg-red-50 border border-red-200 hover:bg-red-100 disabled:opacity-50 transition-colors"
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold rounded-xl text-rose-400 bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500/20 hover:text-rose-300 hover:border-rose-500/40 disabled:opacity-50 transition-all uppercase tracking-wider"
               >
                 {isDeleting ? (
                   <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
