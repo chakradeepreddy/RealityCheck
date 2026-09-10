@@ -30,7 +30,7 @@ export const VerdictDisplay: React.FC<VerdictDisplayProps> = ({ verdict, reason 
       icon: HelpCircle, 
       color: 'text-verdict-inconclusive', 
       bg: 'bg-verdict-inconclusive/10', 
-      border: 'border-verdict-inconclusive/30 shadow-[0_0_20px_rgba(245,158,11,0.15)]',
+      border: 'border-verdict-inconclusive/30 shadow-[0_0_20px_rgba(148,163,184,0.15)]',
       label: 'INCONCLUSIVE' 
     },
   }[verdict] || {

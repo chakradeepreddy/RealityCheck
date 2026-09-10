@@ -32,3 +32,18 @@
     transform: translateY(0) scale(1);
   }
 }
+
+@keyframes scan-x {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes scan-y {
+  0% { transform: translateY(-10px); }
+  100% { transform: translateY(40px); }
+}
+
+@keyframes fade-in-up {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}

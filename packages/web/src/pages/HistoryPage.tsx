@@ -6,7 +6,7 @@ import type { Run } from '../api/types';
 const VERDICT_BADGE: Record<string, string> = {
   SUPPORTED: 'bg-verdict-supported/20 text-verdict-supported border-verdict-supported/30 shadow-[0_0_10px_rgba(34,197,94,0.2)]',
   CONTRADICTED: 'bg-verdict-contradicted/20 text-verdict-contradicted border-verdict-contradicted/30 shadow-[0_0_10px_rgba(239,68,68,0.2)]',
-  INCONCLUSIVE: 'bg-verdict-inconclusive/20 text-verdict-inconclusive border-verdict-inconclusive/30 shadow-[0_0_10px_rgba(245,158,11,0.2)]'
+  INCONCLUSIVE: 'bg-verdict-inconclusive/20 text-verdict-inconclusive border-verdict-inconclusive/30 shadow-[0_0_10px_rgba(148,163,184,0.2)]'
 };
 
 export function HistoryPage() {

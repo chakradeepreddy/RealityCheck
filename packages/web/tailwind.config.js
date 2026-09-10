@@ -17,7 +17,7 @@ export default {
         'navy-border': '#243B53',
         'verdict-supported': '#22C55E',
         'verdict-contradicted': '#EF4444',
-        'verdict-inconclusive': '#F59E0B'
+        'verdict-inconclusive': '#94A3B8'
       },
       animation: {
         'intro-scale-up': 'introScaleUp 4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
