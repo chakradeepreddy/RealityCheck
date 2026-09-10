@@ -58,7 +58,13 @@ export async function runRoutes(app: FastifyInstance) {
   app.post('/', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const body = CreateRunSchema.parse(request.body);
-      const adapter = AdapterRegistry.resolve(body.url);
+      
+      let adapter = null;
+      try {
+        adapter = AdapterRegistry.resolve(body.url);
+      } catch (err: any) {
+        // Adapter not found, pass null so Orchestrator logs UNSUPPORTED_SITE
+      }
       
       const result = await orchestrator.runNewExperiment(
         body.claim,
@@ -80,9 +86,6 @@ export async function runRoutes(app: FastifyInstance) {
     } catch (error: any) {
       if (error instanceof z.ZodError) {
         return reply.code(400).send({ error: 'Invalid request', details: error.issues });
-      }
-      if (error.message.includes('No registered SiteAdapter')) {
-        return reply.code(400).send({ error: error.message });
       }
       app.log.error(error);
       return reply.code(500).send({ error: 'Internal Server Error', message: error.message });
@@ -141,9 +144,6 @@ export async function runRoutes(app: FastifyInstance) {
     } catch (error: any) {
       if (error instanceof z.ZodError) {
         return reply.code(400).send({ error: 'Invalid request', details: error.issues });
-      }
-      if (error.message.includes('No registered SiteAdapter')) {
-        return reply.code(400).send({ error: error.message });
       }
       if (error.message.includes('not found')) {
         return reply.code(404).send({ error: error.message });

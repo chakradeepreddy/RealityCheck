@@ -14,12 +14,12 @@ const INTEGRATIONS = [
     desc: 'Real listing scrape — reads discount badges from product search results.'
   },
   {
-    name: 'SauceDemo',
-    url: 'saucedemo.com',
-    capabilities: ['Boundary: Item Price'],
-    verdicts: ['SUPPORTED', 'CONTRADICTED'] as const,
-    badge: '🧪',
-    desc: 'Official public demo store by Sauce Labs — browser logs in and reads inventory prices.'
+    name: 'Tricentis',
+    url: 'demowebshop.tricentis.com',
+    capabilities: ['Boundary: Product Price', 'Canary: Network Leak'],
+    verdicts: ['SUPPORTED', 'CONTRADICTED', 'INCONCLUSIVE'] as const,
+    badge: '🛍️',
+    desc: 'Demo Web Shop by Tricentis explicitly authorized for test automation.'
   },
   {
     name: 'OWASP Juice Shop',

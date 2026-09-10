@@ -104,15 +104,15 @@ export function RunDetailsPage() {
           
           {/* VERDICT SUMMARY */}
           <div>
-            <div className={`inline-flex px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wider mb-4 ${
-              currentRun.verdict === 'SUPPORTED' ? 'bg-green-100 text-green-800' :
-              currentRun.verdict === 'CONTRADICTED' ? 'bg-red-100 text-red-800' :
-              'bg-slate-100 text-slate-800'
+            <div className={`inline-flex px-6 py-3 rounded-full text-lg font-extrabold uppercase tracking-widest mb-4 shadow-sm border-2 ${
+              currentRun.verdict === 'SUPPORTED' ? 'bg-green-100 text-green-800 border-green-300 shadow-green-100' :
+              currentRun.verdict === 'CONTRADICTED' ? 'bg-red-100 text-red-800 border-red-300 shadow-red-100' :
+              'bg-slate-100 text-slate-800 border-slate-300 shadow-slate-100'
             }`}>
               {currentRun.verdict}
             </div>
             <h3 className="text-2xl font-semibold text-slate-900 mb-2">Claim: {currentRun.claim}</h3>
-            <p className="text-slate-600">Target: <a href={currentRun.targetUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{currentRun.targetUrl}</a></p>
+            <p className="text-slate-600">Target: <a href={currentRun.targetUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">{currentRun.targetUrl}</a></p>
             <p className="text-slate-500 text-sm mt-1">Verified: {new Date(currentRun.startedAt).toLocaleString()}</p>
           </div>
 
@@ -129,95 +129,99 @@ export function RunDetailsPage() {
           <hr className="border-slate-200" />
 
           {/* WHAT WE TESTED */}
-          <section>
-            <h4 className="text-lg font-bold text-slate-900 mb-3">WHAT WE TESTED</h4>
-            <div className="bg-white p-4 rounded-lg border border-slate-200 grid grid-cols-2 gap-4">
-              <div>
-                <span className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Primitive</span>
-                <span className="text-slate-900">{currentRun.primitive}</span>
-              </div>
-              <div>
-                <span className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Execution Mode</span>
-                <span className="text-slate-900">{currentRun.executionMode}</span>
-              </div>
-            </div>
-          </section>
-
-          <hr className="border-slate-200" />
-
-          {/* RUNTIME EVIDENCE */}
-          <section>
-            <h4 className="text-lg font-bold text-slate-900 mb-3">RUNTIME EVIDENCE</h4>
-            {currentRun.observations && currentRun.observations.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {currentRun.observations.map((obs, idx) => (
-                  <div key={idx} className="border border-slate-200 rounded-lg overflow-hidden bg-white">
-                    {obs.evidenceRefs?.screenshotPath ? (
-                      <a href={`${API_BASE_URL}/evidence/${obs.evidenceRefs.screenshotPath}`} target="_blank" rel="noopener noreferrer" className="block aspect-video bg-slate-100 border-b border-slate-200 relative group">
-                        <img src={`${API_BASE_URL}/evidence/${obs.evidenceRefs.screenshotPath}`} alt={`Observation ${idx}`} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                          <span className="opacity-0 group-hover:opacity-100 bg-black/75 text-white text-xs px-2 py-1 rounded">View Screenshot</span>
-                        </div>
-                      </a>
-                    ) : (
-                      <div className="aspect-video bg-slate-50 border-b border-slate-200 flex items-center justify-center text-slate-400 text-sm">
-                        No Screenshot
-                      </div>
-                    )}
-                    <div className="p-3 bg-slate-50">
-                      <div className="text-xs text-slate-500 mb-1">Observation {idx + 1}</div>
-                      {obs.pageState ? (
-                        <pre className="text-xs text-slate-700 font-mono whitespace-pre-wrap">
-                          {JSON.stringify(obs.pageState, null, 2)}
-                        </pre>
-                      ) : obs.canaryMarkers ? (
-                         <pre className="text-xs text-slate-700 font-mono whitespace-pre-wrap">
-                          {JSON.stringify(obs.canaryMarkers, null, 2)}
-                        </pre>
-                      ) : (
-                        <span className="text-xs text-slate-400">No structured state</span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-slate-500 italic">No runtime evidence collected.</p>
-            )}
-          </section>
-
-          {/* CLAIM REFERENCE */}
-          {currentRun.claimAttachmentPath && (
+          {(currentRun.status === 'COMPLETED' || (currentRun.observations && currentRun.observations.length > 0)) && (
             <>
-              <hr className="border-slate-200" />
               <section>
-                <h4 className="text-lg font-bold text-slate-900 mb-3">CLAIM REFERENCE</h4>
-                <div className="bg-purple-50 border border-purple-100 rounded-lg p-4 mb-3">
-                  <p className="text-sm text-purple-800 font-medium">User-provided claim context — not used to determine verdict.</p>
+                <h4 className="text-lg font-bold text-slate-900 mb-3">WHAT WE TESTED</h4>
+                <div className="bg-white p-4 rounded-lg border border-slate-200 grid grid-cols-2 gap-4">
+                  <div>
+                    <span className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Primitive</span>
+                    <span className="text-slate-900">{currentRun.primitive}</span>
+                  </div>
+                  <div>
+                    <span className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Execution Mode</span>
+                    <span className="text-slate-900">{currentRun.executionMode}</span>
+                  </div>
                 </div>
-                <a href={`${API_BASE_URL}/evidence/${currentRun.claimAttachmentPath}`} target="_blank" rel="noopener noreferrer" className="block max-w-sm rounded-lg overflow-hidden border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-                  <img src={`${API_BASE_URL}/evidence/${currentRun.claimAttachmentPath}`} alt="Claim Reference" className="w-full h-auto" />
-                </a>
+              </section>
+
+              <hr className="border-slate-200" />
+
+              {/* RUNTIME EVIDENCE */}
+              <section>
+                <h4 className="text-xl font-extrabold text-slate-900 mb-4 tracking-tight border-b-2 border-slate-200 pb-2">VERIFICATION PROOFS</h4>
+                {currentRun.observations && currentRun.observations.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {currentRun.observations.map((obs, idx) => (
+                      <div key={idx} className="border border-slate-300 rounded-xl overflow-hidden bg-white shadow-md hover:shadow-lg transition-shadow">
+                        {obs.evidenceRefs?.screenshotPath ? (
+                          <a href={`${API_BASE_URL}/evidence/${obs.evidenceRefs.screenshotPath}`} target="_blank" rel="noopener noreferrer" className="block relative group bg-slate-100 border-b border-slate-200">
+                            <img src={`${API_BASE_URL}/evidence/${obs.evidenceRefs.screenshotPath}`} alt={`Observation ${idx}`} className="w-full h-auto object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-4">
+                              <span className="text-white text-sm font-semibold drop-shadow-md">🔍 Click to expand proof</span>
+                            </div>
+                          </a>
+                        ) : (
+                          <div className="aspect-video bg-slate-50 border-b border-slate-200 flex items-center justify-center text-slate-400 text-sm">
+                            No Screenshot
+                          </div>
+                        )}
+                        <div className="p-4 bg-slate-50">
+                          <div className="text-sm font-bold text-slate-600 mb-2 uppercase tracking-wide">Observation {idx + 1} State</div>
+                          {obs.pageState ? (
+                            <pre className="text-xs text-slate-800 font-mono whitespace-pre-wrap bg-white p-2 rounded border border-slate-200">
+                              {JSON.stringify(obs.pageState, null, 2)}
+                            </pre>
+                          ) : obs.canaryMarkers ? (
+                            <pre className="text-xs text-slate-800 font-mono whitespace-pre-wrap bg-white p-2 rounded border border-slate-200">
+                              {JSON.stringify(obs.canaryMarkers, null, 2)}
+                            </pre>
+                          ) : (
+                            <span className="text-xs text-slate-400">No structured state</span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-slate-500 italic">No runtime evidence collected.</p>
+                )}
+              </section>
+
+              {/* CLAIM REFERENCE */}
+              {currentRun.claimAttachmentPath && (
+                <>
+                  <hr className="border-slate-200" />
+                  <section>
+                    <h4 className="text-lg font-bold text-slate-900 mb-3">CLAIM REFERENCE</h4>
+                    <div className="bg-purple-50 border border-purple-100 rounded-lg p-4 mb-3">
+                      <p className="text-sm text-purple-800 font-medium">User-provided claim context — not used to determine verdict.</p>
+                    </div>
+                    <a href={`${API_BASE_URL}/evidence/${currentRun.claimAttachmentPath}`} target="_blank" rel="noopener noreferrer" className="block max-w-sm rounded-lg overflow-hidden border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                      <img src={`${API_BASE_URL}/evidence/${currentRun.claimAttachmentPath}`} alt="Claim Reference" className="w-full h-auto" />
+                    </a>
+                  </section>
+                </>
+              )}
+
+              <hr className="border-slate-200" />
+
+              {/* VERIFICATION RESULTS */}
+              <section>
+                <h4 className="text-lg font-bold text-slate-900 mb-3">FINAL VERDICT METRICS</h4>
+                <div className="bg-gradient-to-br from-white to-slate-50 p-6 rounded-xl border border-slate-300 shadow-sm space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-500 font-semibold uppercase tracking-wider text-sm">Claimed Condition</span>
+                    <span className="text-slate-900 font-black text-xl bg-slate-100 px-4 py-1.5 rounded-lg border border-slate-200">{currentRun.claimedBoundary !== null ? currentRun.claimedBoundary : 'N/A'}</span>
+                  </div>
+                  <div className="flex justify-between items-center border-t border-slate-200 pt-4">
+                    <span className="text-slate-500 font-semibold uppercase tracking-wider text-sm">Observed Condition</span>
+                    <span className="text-blue-900 font-black text-xl bg-blue-50 px-4 py-1.5 rounded-lg border border-blue-200">{currentRun.observedBoundary !== null ? currentRun.observedBoundary : 'N/A'}</span>
+                  </div>
+                </div>
               </section>
             </>
           )}
-
-          <hr className="border-slate-200" />
-
-          {/* VERIFICATION */}
-          <section>
-            <h4 className="text-lg font-bold text-slate-900 mb-3">VERIFICATION</h4>
-            <div className="bg-white p-4 rounded-lg border border-slate-200 space-y-3">
-              <div className="flex justify-between">
-                <span className="text-slate-500 font-medium">Claimed Condition</span>
-                <span className="text-slate-900 font-bold">{currentRun.claimedBoundary !== null ? currentRun.claimedBoundary : 'N/A'}</span>
-              </div>
-              <div className="flex justify-between border-t border-slate-100 pt-3">
-                <span className="text-slate-500 font-medium">Observed Condition</span>
-                <span className="text-slate-900 font-bold">{currentRun.observedBoundary !== null ? currentRun.observedBoundary : 'N/A'}</span>
-              </div>
-            </div>
-          </section>
 
         </div>
         

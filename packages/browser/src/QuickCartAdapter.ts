@@ -10,9 +10,9 @@ export class QuickCartAdapter implements SiteAdapter<Page> {
   version = '1.0.0';
 
   supports(url: string): boolean {
-    // QuickCart is a local benchmark running on localhost:5173
+    // QuickCart is a local benchmark running on localhost:5173 or localhost:5174
     // Real implementation might check hostname or specific benchmark query params
-    return url.includes('localhost:3000') || url.includes('localhost:5173') || url.includes('127.0.0.1:5173') || url.includes('quickcart');
+    return url.includes('localhost:3000') || url.includes('localhost:5173') || url.includes('localhost:5174') || url.includes('127.0.0.1:5173') || url.includes('127.0.0.1:5174') || url.includes('quickcart');
   }
 
   async navigate(page: Page, url: string): Promise<void> {

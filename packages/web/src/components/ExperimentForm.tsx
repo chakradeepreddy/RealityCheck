@@ -12,78 +12,59 @@ interface Preset {
   url: string;
   claim: string;
   mode: ExecutionMode;
-  expectedVerdict: 'SUPPORTED' | 'CONTRADICTED' | 'INCONCLUSIVE';
   description: string;
 }
 
 const PRESETS: Preset[] = [
   {
-    label: 'Flipkart — CONTRADICTED',
+    label: 'Flipkart — High Discount',
     site: 'Flipkart',
     url: 'https://www.flipkart.com/search?q=laptop',
     claim: 'Every laptop on Flipkart has at least a 90% discount',
     mode: 'AUTHORIZED_LIVE',
-    expectedVerdict: 'CONTRADICTED',
-    description: 'Real listings show 20–60% off. The 90% claim will be contradicted by browser observation.'
+    description: 'Test if real listings match an extreme discount claim.'
   },
   {
-    label: 'Flipkart — SUPPORTED',
+    label: 'Flipkart — Moderate Discount',
     site: 'Flipkart',
     url: 'https://www.flipkart.com/search?q=laptop',
     claim: 'At least one laptop on Flipkart has a discount percentage above 10%',
     mode: 'AUTHORIZED_LIVE',
-    expectedVerdict: 'SUPPORTED',
-    description: 'Browser observes 27+ laptops with discounts. Claim is observably supported.'
+    description: 'Test if there are any products with reasonable discounts.'
   },
   {
-    label: 'SauceDemo — CONTRADICTED',
-    site: 'SauceDemo',
-    url: 'https://www.saucedemo.com',
-    claim: 'The cheapest item in the Swag Labs store costs less than $5',
+    label: 'Tricentis — Item Price',
+    site: 'Tricentis Demo Shop',
+    url: 'https://demowebshop.tricentis.com/',
+    claim: 'The cheapest item on the catalog costs at least $25',
     mode: 'AUTHORIZED_LIVE',
-    expectedVerdict: 'CONTRADICTED',
-    description: 'Browser logs in with official public credentials and observes the cheapest item is $7.99.'
+    description: 'Reads the item prices and verifies the numeric boundary.'
   },
   {
-    label: 'SauceDemo — SUPPORTED',
-    site: 'SauceDemo',
-    url: 'https://www.saucedemo.com',
-    claim: 'The cheapest item in the Swag Labs store costs less than $10',
+    label: 'Tricentis — Analytics',
+    site: 'Tricentis Demo Shop',
+    url: 'https://demowebshop.tricentis.com/',
+    claim: 'Does the search bar send data to analytics?',
     mode: 'AUTHORIZED_LIVE',
-    expectedVerdict: 'SUPPORTED',
-    description: 'Browser observes min price of $7.99 which is below $10. Claim is supported.'
+    description: 'Network monitoring checks for analytics traffic after planting a canary.'
   },
   {
-    label: 'QuickCart — SUPPORTED',
+    label: 'QuickCart — Shipping',
     site: 'QuickCart',
     url: 'http://localhost:3000',
     claim: 'Free shipping on orders of 999 or more',
     mode: 'CONTROLLED',
-    expectedVerdict: 'SUPPORTED',
-    description: 'Browser probes the QuickCart cart at multiple subtotals and observes the shipping threshold.'
+    description: 'Probes the QuickCart cart at multiple subtotals to verify the shipping threshold.'
   },
   {
-    label: 'Juice Shop — SUPPORTED (Canary)',
+    label: 'Juice Shop — Third-party Leak',
     site: 'OWASP Juice Shop',
     url: 'https://juice-shop.herokuapp.com/#/',
     claim: 'Does this form send my information to another website?',
     mode: 'AUTHORIZED_LIVE',
-    expectedVerdict: 'SUPPORTED',
-    description: 'A synthetic canary marker is planted in the search box. Network is monitored for third-party leaks.'
+    description: 'A canary marker is planted in the search box to monitor for third-party leaks.'
   }
 ];
-
-const VERDICT_COLORS = {
-  SUPPORTED: 'bg-emerald-50 border-emerald-200 text-emerald-700',
-  CONTRADICTED: 'bg-red-50 border-red-200 text-red-700',
-  INCONCLUSIVE: 'bg-amber-50 border-amber-200 text-amber-700'
-};
-
-const VERDICT_DOT = {
-  SUPPORTED: 'bg-emerald-500',
-  CONTRADICTED: 'bg-red-500',
-  INCONCLUSIVE: 'bg-amber-500'
-};
 
 export const ExperimentForm: React.FC<ExperimentFormProps> = ({ onSubmit, isLoading }) => {
   const [url, setUrl] = useState('');
@@ -152,14 +133,11 @@ export const ExperimentForm: React.FC<ExperimentFormProps> = ({ onSubmit, isLoad
                   : 'border-slate-200 bg-white hover:border-slate-400'
               }`}
             >
-              <div className="flex items-center gap-2 mb-1">
-                <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-semibold border ${VERDICT_COLORS[preset.expectedVerdict]}`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${VERDICT_DOT[preset.expectedVerdict]}`} />
-                  {preset.expectedVerdict}
-                </span>
-                <span className="text-xs text-slate-400 font-medium">{preset.site}</span>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xs text-slate-800 font-bold uppercase tracking-wider bg-slate-100 px-2 py-0.5 rounded">{preset.site}</span>
               </div>
-              <p className="text-xs font-semibold text-slate-700">{preset.claim.substring(0, 60)}{preset.claim.length > 60 ? '…' : ''}</p>
+              <p className="text-sm font-semibold text-slate-900 mb-1">{preset.claim.substring(0, 60)}{preset.claim.length > 60 ? '…' : ''}</p>
+              <p className="text-xs text-slate-500">{preset.description}</p>
             </button>
           ))}
         </div>

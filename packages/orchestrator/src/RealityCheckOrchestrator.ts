@@ -19,7 +19,7 @@ export class RealityCheckOrchestrator {
   async runNewExperiment(
     claim: string,
     targetUrl: string,
-    adapter: SiteAdapter<any>,
+    adapter: SiteAdapter<any> | null,
     compiler: ClaimCompiler,
     executionMode: ExecutionMode = 'CONTROLLED',
     claimAttachmentPath?: string
@@ -34,8 +34,8 @@ export class RealityCheckOrchestrator {
       targetUrl,
       primitive: 'BOUNDARY',
       executionMode,
-      adapter: adapter.constructor.name,
-      adapterVersion: '1.0.0',
+      adapter: adapter ? adapter.constructor.name : 'NONE',
+      adapterVersion: adapter ? adapter.version || '1.0.0' : 'N/A',
       experimentSpec: {} as any, // Placeholder until compiled
       browserEnvironment: {
         browser: 'Chromium',
@@ -50,6 +50,17 @@ export class RealityCheckOrchestrator {
       expectedObservables: {}
     };
 
+    if (!adapter) {
+      const reason = `Preflight failed: No registered SiteAdapter supports URL ${targetUrl}`;
+      await this.repository.saveRun(manifest, ExecutionStatusEnum.UNSUPPORTED_SITE, VerdictEnum.INCONCLUSIVE, reason);
+      return {
+        runId,
+        spec: manifest.experimentSpec,
+        observations: [],
+        verifierResult: { verdict: VerdictEnum.INCONCLUSIVE, reason }
+      };
+    }
+
     // Preflight
     let supportsUrl = false;
     try {
@@ -60,7 +71,7 @@ export class RealityCheckOrchestrator {
 
     if (!supportsUrl) {
       const reason = `Preflight failed: Adapter ${manifest.adapter} does not support URL ${targetUrl}`;
-      await this.repository.saveRun(manifest, ExecutionStatusEnum.NOT_RUN, VerdictEnum.INCONCLUSIVE, reason);
+      await this.repository.saveRun(manifest, ExecutionStatusEnum.UNSUPPORTED_SITE, VerdictEnum.INCONCLUSIVE, reason);
       return {
         runId,
         spec: manifest.experimentSpec,
@@ -78,9 +89,16 @@ export class RealityCheckOrchestrator {
       try {
         spec = await compiler.compileClaim(claim, targetUrl);
       } catch (e: any) {
-        const reason = e instanceof Error ? e.message : 'Compilation failed';
-        const inconclusiveReason = `Claim cannot be mapped to a supported experiment: ${reason}`;
-        await this.repository.saveRun(manifest, ExecutionStatusEnum.COMPLETED, VerdictEnum.INCONCLUSIVE, inconclusiveReason);
+        const errorMessage = e instanceof Error ? e.message : 'Compilation failed';
+        let statusToSet: typeof ExecutionStatusEnum[keyof typeof ExecutionStatusEnum] = ExecutionStatusEnum.NOT_TESTABLE;
+        let inconclusiveReason = `Claim cannot be mapped to a supported experiment: ${errorMessage}`;
+        
+        if (errorMessage.includes('GROQ_API_KEY')) {
+          statusToSet = ExecutionStatusEnum.FAILED;
+          inconclusiveReason = `System misconfiguration: ${errorMessage}`;
+        }
+        
+        await this.repository.saveRun(manifest, statusToSet, VerdictEnum.INCONCLUSIVE, inconclusiveReason);
         return {
           runId,
           spec: manifest.experimentSpec,
@@ -134,7 +152,7 @@ export class RealityCheckOrchestrator {
    */
   async runReplay(
     originalRunId: string,
-    adapter: SiteAdapter<any>,
+    adapter: SiteAdapter<any> | null,
     executionMode: ExecutionMode = 'CONTROLLED'
   ): Promise<ExecutionResult & { runId: string }> {
     const originalRun = await this.repository.getRun(originalRunId);
@@ -154,14 +172,25 @@ export class RealityCheckOrchestrator {
       targetUrl: originalRun.targetUrl,
       primitive: originalRun.primitive as 'BOUNDARY' | 'CANARY',
       executionMode,
-      adapter: adapter.constructor.name,
-      adapterVersion: '1.0.0',
+      adapter: adapter ? adapter.constructor.name : 'NONE',
+      adapterVersion: adapter ? adapter.version || '1.0.0' : 'N/A',
       experimentSpec: parsedSpec,
       browserEnvironment: JSON.parse(originalRun.browserEnvironment),
       testConditions: JSON.parse(originalRun.testConditions),
       startedAt: new Date().toISOString(),
       expectedObservables: parsedSpec.expectedObservables
     };
+
+    if (!adapter) {
+      const reason = `Replay Preflight failed: No registered SiteAdapter supports URL ${manifest.targetUrl}`;
+      await this.repository.saveRun(manifest, ExecutionStatusEnum.UNSUPPORTED_SITE, VerdictEnum.INCONCLUSIVE, reason);
+      return {
+        runId,
+        spec: manifest.experimentSpec,
+        observations: [],
+        verifierResult: { verdict: VerdictEnum.INCONCLUSIVE, reason }
+      };
+    }
 
     // Preflight
     let supportsUrl = false;
@@ -173,7 +202,7 @@ export class RealityCheckOrchestrator {
 
     if (!supportsUrl) {
       const reason = `Replay Preflight failed: Adapter ${manifest.adapter} does not support URL ${manifest.targetUrl}`;
-      await this.repository.saveRun(manifest, ExecutionStatusEnum.NOT_RUN, VerdictEnum.INCONCLUSIVE, reason);
+      await this.repository.saveRun(manifest, ExecutionStatusEnum.UNSUPPORTED_SITE, VerdictEnum.INCONCLUSIVE, reason);
       return {
         runId,
         spec: manifest.experimentSpec,

@@ -39,7 +39,7 @@ describe('RealityCheckOrchestrator', () => {
   });
 
   describe('runNewExperiment', () => {
-    it('handles preflight failure (NOT_RUN)', async () => {
+    it('handles preflight failure (UNSUPPORTED_SITE)', async () => {
       adapter.supports.mockReturnValue(false);
 
       const result = await orchestrator.runNewExperiment('Free shipping over $50', 'https://example.com', adapter, compiler);
@@ -48,14 +48,14 @@ describe('RealityCheckOrchestrator', () => {
       expect(repository.saveRun).toHaveBeenCalledTimes(1);
       expect(repository.saveRun).toHaveBeenCalledWith(
         expect.anything(),
-        ExecutionStatusEnum.NOT_RUN,
+        ExecutionStatusEnum.UNSUPPORTED_SITE,
         VerdictEnum.INCONCLUSIVE,
         expect.stringContaining('Preflight failed')
       );
       expect(compiler.compileClaim).not.toHaveBeenCalled();
     });
 
-    it('handles compiler failure (FAILED)', async () => {
+    it('handles compiler failure (NOT_TESTABLE)', async () => {
       adapter.supports.mockReturnValue(true);
       compiler.compileClaim.mockRejectedValue(new Error('Groq API Error'));
 
@@ -65,7 +65,7 @@ describe('RealityCheckOrchestrator', () => {
 
       expect(repository.saveRun).toHaveBeenCalledWith(
         expect.anything(),
-        ExecutionStatusEnum.COMPLETED,
+        ExecutionStatusEnum.NOT_TESTABLE,
         VerdictEnum.INCONCLUSIVE,
         expect.stringContaining('Claim cannot be mapped to a supported experiment: Groq API Error')
       );

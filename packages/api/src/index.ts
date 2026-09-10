@@ -1,3 +1,7 @@
+import { config } from 'dotenv';
+import path from 'path';
+config({ path: path.resolve(__dirname, '../../../.env') });
+
 import { buildApp } from './app';
 import { RealityCheckOrchestrator } from '@realitycheck/orchestrator';
 import { ExperimentRepository, createDatabase } from '@realitycheck/db';
@@ -7,13 +11,13 @@ import {
   AdapterRegistry,
   QuickCartAdapter,
   FlipkartAdapter,
-  SauceDemoAdapter,
+  TricentisAdapter,
   JuiceShopAdapter
 } from '@realitycheck/browser';
 
 AdapterRegistry.register(new QuickCartAdapter());
 AdapterRegistry.register(new FlipkartAdapter());
-AdapterRegistry.register(new SauceDemoAdapter());
+AdapterRegistry.register(new TricentisAdapter());
 AdapterRegistry.register(new JuiceShopAdapter());
 
 const HOST = process.env.HOST || '127.0.0.1';
