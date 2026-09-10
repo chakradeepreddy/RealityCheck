@@ -5,7 +5,7 @@ import { ReplayAction } from '../components/ReplayAction';
 import { apiClient } from '../api/client';
 import type { Run, ExecutionMode } from '../api/types';
 import { API_BASE_URL } from '../config';
-import { ArrowLeft, ExternalLink, Trash2, Activity, Play, CheckCircle2, XOctagon, HelpCircle, ShieldAlert, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Trash2, Activity, CheckCircle2, XOctagon, HelpCircle, ShieldAlert, Image as ImageIcon } from 'lucide-react';
 import { clsx } from 'clsx';
 
 export function RunDetailsPage() {

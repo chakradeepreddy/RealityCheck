@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { ExecutionMode } from '../api/types';
 
 interface ExperimentFormProps {
@@ -65,6 +65,34 @@ const PRESETS: Preset[] = [
     description: 'A canary marker is planted in the search box to monitor for third-party leaks.'
   }
 ];
+
+const LoadingSequence = () => {
+  const stages = ['CLAIM', 'EXPERIMENT', 'BROWSER', 'EVIDENCE', 'VERDICT'];
+  const [activeIdx, setActiveIdx] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveIdx((prev) => (prev + 1) % stages.length);
+    }, 600);
+    return () => clearInterval(interval);
+  }, [stages.length]);
+
+  return (
+    <div className="flex items-center justify-center gap-2 md:gap-4 font-mono text-[10px] md:text-xs font-bold tracking-widest text-navy-bg/50 overflow-hidden w-full h-6 relative">
+      {stages.map((stage, idx) => (
+        <React.Fragment key={stage}>
+          <span className={`transition-all duration-300 ${idx === activeIdx ? 'text-navy-bg drop-shadow-md scale-110' : ''}`}>
+            {stage}
+          </span>
+          {idx < stages.length - 1 && (
+            <span className="text-navy-bg/30">→</span>
+          )}
+        </React.Fragment>
+      ))}
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent w-1/3 animate-[scanline_2s_linear_infinite] mix-blend-overlay" />
+    </div>
+  );
+};
 
 export const ExperimentForm: React.FC<ExperimentFormProps> = ({ onSubmit, isLoading }) => {
   const [url, setUrl] = useState('');
@@ -231,15 +259,9 @@ export const ExperimentForm: React.FC<ExperimentFormProps> = ({ onSubmit, isLoad
           className="w-full relative group overflow-hidden bg-cyan-accent text-navy-bg font-bold tracking-wide py-4 px-6 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(34,211,238,0.4)] hover:shadow-[0_0_30px_rgba(34,211,238,0.6)] transition-all"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-cyan-accent to-blue-accent group-hover:scale-105 transition-transform duration-300" />
-          <span className="relative z-10 text-navy-bg font-extrabold">
+          <span className="relative z-10 text-navy-bg font-extrabold flex items-center justify-center">
             {isLoading ? (
-              <span className="flex items-center justify-center gap-3">
-                <svg className="animate-spin h-5 w-5 text-navy-bg" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                </svg>
-                Running verification...
-              </span>
+              <LoadingSequence />
             ) : 'RUN REALITYCHECK'}
           </span>
         </button>
