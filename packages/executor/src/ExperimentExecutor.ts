@@ -123,6 +123,20 @@ export class ExperimentExecutor {
     let observations: Observation[] = [];
     try {
       await runner.init();
+
+      // Discovery Phase
+      const capability = await runner.runDiscovery(spec, adapter, spec.targetUrl);
+      if (!capability.isTestable) {
+        return {
+          spec,
+          observations: [],
+          verifierResult: {
+            verdict: 'INCONCLUSIVE',
+            reason: capability.reason || 'NOT_TESTABLE: Missing required capabilities.'
+          }
+        };
+      }
+
       // Execute the browser runner and retrieve array of observations
       observations = await runner.runBoundaryObservation(spec, adapter, spec.targetUrl, actualProbeStates);
 
@@ -178,6 +192,7 @@ export class ExperimentExecutor {
           };
         }
       } else {
+        console.log('--- raw observations for engine ---', JSON.stringify(observations, null, 2));
         analysis = BoundaryEngine.analyzeNumericThreshold(
           observations,
           inputKey,
@@ -279,6 +294,20 @@ export class ExperimentExecutor {
     let observations: Observation[] = [];
     try {
       await runner.init();
+
+      // Discovery Phase
+      const capability = await runner.runDiscovery(spec, adapter, spec.targetUrl);
+      if (!capability.isTestable) {
+        return {
+          spec,
+          observations: [],
+          verifierResult: {
+            verdict: 'INCONCLUSIVE',
+            reason: capability.reason || 'NOT_TESTABLE: Missing required capabilities.'
+          }
+        };
+      }
+
       observations = await runner.runCanaryObservation(spec, adapter, spec.targetUrl, target, marker);
     } catch (err: any) {
       return {

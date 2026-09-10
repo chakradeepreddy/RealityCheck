@@ -16,6 +16,8 @@ export class DeterministicVerifier {
    * This logic is purely deterministic and does NOT rely on LLMs or browser context.
    */
   static verifyBoundary(spec: ExperimentSpec, analysis: BoundaryAnalysisResult, expectedTarget: number): VerifierResult {
+    console.log('--- verifyBoundary ---', JSON.stringify({ analysis, expectedTarget }, null, 2));
+
     // 1. Validate spec semantics
     if (spec.primitive !== 'BOUNDARY') {
       return {

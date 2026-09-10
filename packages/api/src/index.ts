@@ -9,16 +9,10 @@ import { GroqClaimCompiler } from '@realitycheck/compiler';
 import Database from 'better-sqlite3';
 import {
   AdapterRegistry,
-  QuickCartAdapter,
-  FlipkartAdapter,
-  TricentisAdapter,
-  JuiceShopAdapter
+  GenericAdaptiveAdapter
 } from '@realitycheck/browser';
 
-AdapterRegistry.register(new QuickCartAdapter());
-AdapterRegistry.register(new FlipkartAdapter());
-AdapterRegistry.register(new TricentisAdapter());
-AdapterRegistry.register(new JuiceShopAdapter());
+AdapterRegistry.register(new GenericAdaptiveAdapter());
 
 const HOST = process.env.HOST || '127.0.0.1';
 const PORT = parseInt(process.env.PORT || '3001', 10);

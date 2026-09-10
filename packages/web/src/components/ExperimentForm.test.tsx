@@ -57,6 +57,7 @@ describe('ExperimentForm', () => {
     
     expect((screen.getByLabelText(/Target URL/i) as HTMLInputElement).disabled).toBe(true);
     expect((screen.getByLabelText(/^Claim$/i) as HTMLTextAreaElement).disabled).toBe(true);
-    expect((screen.getByRole('button', { name: /Running verification/i }) as HTMLButtonElement).disabled).toBe(true);
+    const submitButton = screen.getAllByRole('button').find(b => (b as HTMLButtonElement).type === 'submit');
+    expect((submitButton as HTMLButtonElement).disabled).toBe(true);
   });
 });

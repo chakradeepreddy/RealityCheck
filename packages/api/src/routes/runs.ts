@@ -56,7 +56,7 @@ export async function runRoutes(app: FastifyInstance) {
     }))
   });
 
-  app.post('/', async (request: FastifyRequest, reply: FastifyReply) => {
+  app.post('', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const body = CreateRunSchema.parse(request.body);
       
@@ -93,7 +93,7 @@ export async function runRoutes(app: FastifyInstance) {
     }
   });
 
-  app.get('/', async (request: FastifyRequest, reply: FastifyReply) => {
+  app.get('', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const runs = await repository.getAllRuns();
       return reply.send(runs.map(formatRunResponse));

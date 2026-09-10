@@ -1,14 +1,15 @@
-import { 
-  SiteAdapter, 
-  RunManifest, 
-  ExecutionStatusEnum, 
-  VerdictEnum, 
+import {
+  SiteAdapter,
+  RunManifest,
+  ExecutionStatusEnum,
+  VerdictEnum,
   ExecutionMode,
   ExperimentSpec,
   ClaimCompiler
 } from '@realitycheck/contracts';
 import { ExperimentRepository } from '@realitycheck/db';
 import { ExperimentExecutor, ExecutionResult } from '@realitycheck/executor';
+import * as crypto from 'crypto';
 
 export class RealityCheckOrchestrator {
   constructor(private repository: ExperimentRepository) {}
@@ -25,7 +26,7 @@ export class RealityCheckOrchestrator {
     claimAttachmentPath?: string
   ): Promise<ExecutionResult & { runId: string }> {
     const runId = crypto.randomUUID();
-    
+
     const manifest: RunManifest = {
       schemaVersion: '1.0.0',
       runId,
@@ -92,12 +93,12 @@ export class RealityCheckOrchestrator {
         const errorMessage = e instanceof Error ? e.message : 'Compilation failed';
         let statusToSet: typeof ExecutionStatusEnum[keyof typeof ExecutionStatusEnum] = ExecutionStatusEnum.NOT_TESTABLE;
         let inconclusiveReason = `Claim cannot be mapped to a supported experiment: ${errorMessage}`;
-        
+
         if (errorMessage.includes('GROQ_API_KEY')) {
           statusToSet = ExecutionStatusEnum.FAILED;
           inconclusiveReason = `System misconfiguration: ${errorMessage}`;
         }
-        
+
         await this.repository.saveRun(manifest, statusToSet, VerdictEnum.INCONCLUSIVE, inconclusiveReason);
         return {
           runId,
@@ -106,11 +107,11 @@ export class RealityCheckOrchestrator {
           verifierResult: { verdict: VerdictEnum.INCONCLUSIVE, reason: inconclusiveReason }
         };
       }
-      
+
       manifest.experimentSpec = spec;
       manifest.expectedObservables = spec.expectedObservables;
       manifest.primitive = spec.primitive as any;
-      
+
       // Update DB with compiled spec immediately before execution
       await this.repository.saveRun(manifest, ExecutionStatusEnum.RUNNING, VerdictEnum.INCONCLUSIVE, 'Executing browser tests...');
 
@@ -123,17 +124,21 @@ export class RealityCheckOrchestrator {
       } else {
         throw new Error(`Unsupported primitive: ${spec.primitive}`);
       }
-      
+
       // Save Result
+      const finalStatus = result.verifierResult.reason.includes('NOT_TESTABLE')
+        ? ExecutionStatusEnum.NOT_TESTABLE
+        : ExecutionStatusEnum.COMPLETED;
+
       await this.repository.saveRun(
-        manifest, 
-        ExecutionStatusEnum.COMPLETED, 
-        result.verifierResult.verdict, 
+        manifest,
+        finalStatus,
+        result.verifierResult.verdict,
         result.verifierResult.reason,
         result.verifierResult.claimedBoundary,
         result.verifierResult.observedBoundary
       );
-      
+
       if (result.observations.length > 0) {
         await this.repository.saveObservations(runId, result.observations);
       }
@@ -223,17 +228,21 @@ export class RealityCheckOrchestrator {
       } else {
         throw new Error(`Unsupported primitive: ${parsedSpec.primitive}`);
       }
-      
+
       // Save Result
+      const finalStatus = result.verifierResult.reason.includes('NOT_TESTABLE')
+        ? ExecutionStatusEnum.NOT_TESTABLE
+        : ExecutionStatusEnum.COMPLETED;
+
       await this.repository.saveRun(
-        manifest, 
-        ExecutionStatusEnum.COMPLETED, 
-        result.verifierResult.verdict, 
+        manifest,
+        finalStatus,
+        result.verifierResult.verdict,
         result.verifierResult.reason,
         result.verifierResult.claimedBoundary,
         result.verifierResult.observedBoundary
       );
-      
+
       if (result.observations.length > 0) {
         await this.repository.saveObservations(runId, result.observations);
       }

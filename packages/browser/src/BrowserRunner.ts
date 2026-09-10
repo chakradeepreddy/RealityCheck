@@ -1,5 +1,5 @@
 import { chromium, Browser, Page } from '@playwright/test';
-import { ExperimentSpec, Observation, SiteAdapter } from '@realitycheck/contracts';
+import { ExperimentSpec, Observation, SiteAdapter, CapabilityResult } from '@realitycheck/contracts';
 import path from 'path';
 import crypto from 'crypto';
 
@@ -14,10 +14,36 @@ export class BrowserRunner {
     this.browser = await chromium.launch({ headless: true });
   }
 
-  async close() {
+  async close(): Promise<void> {
     if (this.browser) {
       await this.browser.close();
       this.browser = null;
+    }
+  }
+
+  /**
+   * Pre-flights the target URL to verify capabilities.
+   */
+  async runDiscovery(
+    spec: ExperimentSpec,
+    adapter: SiteAdapter<Page>,
+    targetUrl: string
+  ): Promise<CapabilityResult> {
+    if (!adapter.discoverCapabilities) {
+      return { isTestable: true };
+    }
+
+    if (!this.browser) {
+      throw new Error("BrowserRunner is not initialized.");
+    }
+
+    const context = await this.browser.newContext();
+    const page = await context.newPage();
+
+    try {
+      return await adapter.discoverCapabilities(page, targetUrl, spec);
+    } finally {
+      await context.close();
     }
   }
 
@@ -78,10 +104,13 @@ export class BrowserRunner {
           };
 
           observations.push(observation);
-        } catch (err) {
+        } catch (err: any) {
           // If a state cannot be established or observed, we log it and potentially continue or stop,
           // but we do not manufacture evidence. We return whatever we successfully observed.
           console.warn(`Failed to establish or observe state ${state}:`, err);
+          if (err?.message?.includes('NOT_TESTABLE')) {
+            throw err;
+          }
         }
       }
     } finally {
@@ -162,6 +191,9 @@ export class BrowserRunner {
 
     } catch (err: any) {
       console.warn(`Failed to execute canary run:`, err);
+      if (err?.message?.includes('NOT_TESTABLE')) {
+        throw err;
+      }
       // Return empty observation list on catastrophic failure (Fail Closed)
       return [];
     } finally {

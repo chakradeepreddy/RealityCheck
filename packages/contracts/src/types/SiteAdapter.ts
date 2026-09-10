@@ -1,6 +1,11 @@
 import { ExperimentSpec } from '../schemas/experiment';
 import { Observation } from '../schemas/observation';
 
+export interface CapabilityResult {
+  isTestable: boolean;
+  reason?: string;
+}
+
 /**
  * Interface for establishing a specific test state and reading observations.
  */
@@ -12,6 +17,11 @@ export interface SiteAdapter<TPage = any> {
    * Determines if this adapter supports the given target URL.
    */
   supports(url: string): boolean;
+
+  /**
+   * Pre-flights the target URL to determine if required capabilities are present.
+   */
+  discoverCapabilities?(page: TPage, url: string, spec: ExperimentSpec): Promise<CapabilityResult>;
 
   /**
    * Instructs the adapter to navigate to the correct starting page.

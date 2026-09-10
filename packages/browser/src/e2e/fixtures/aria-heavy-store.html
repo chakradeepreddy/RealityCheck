@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ARIA Heavy Store</title>
+</head>
+<body>
+    <header role="banner">
+        <a role="button" aria-label="View Basket" tabindex="0">
+            <span class="icon">🛒</span>
+            <span class="sr-only">Basket</span>
+        </a>
+    </header>
+    
+    <main role="main">
+        <div role="list" aria-label="Products">
+            <div role="listitem" tabindex="0">
+                <h3 aria-level="3">Accessible Item A</h3>
+                <p aria-label="Price 100 dollars">$100.00</p>
+                <div role="button" tabindex="0" aria-label="Add Accessible Item A to Basket">Add</div>
+            </div>
+        </div>
+        
+        <aside role="complementary" aria-label="Order Summary">
+            <dl>
+                <dt>Total Merchandise</dt>
+                <dd aria-label="Subtotal 100 dollars">$100.00</dd>
+                
+                <dt>Delivery and Handling</dt>
+                <dd aria-label="Shipping cost 10 dollars">$10.00</dd>
+
+                <dt>Discount (WELCOME10)</dt>
+                <dd aria-label="Discount 10 dollars applied">-$10.00</dd>
+            </dl>
+        </aside>
+
+        <section aria-labelledby="canary-heading">
+            <h2 id="canary-heading">Test Canary</h2>
+            <input type="text" aria-label="Canary Input Field" />
+            <div role="button" tabindex="0" aria-label="Submit Canary">Submit</div>
+        </section>
+    </main>
+</body>
+</html>

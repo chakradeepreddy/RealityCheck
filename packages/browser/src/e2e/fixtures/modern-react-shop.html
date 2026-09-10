@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Modern React Shop</title>
+</head>
+<body>
+    <div id="root">
+        <header>
+            <nav>
+                <div class="logo">Shop</div>
+                <button aria-label="Go to Checkout" class="btn-primary">Checkout</button>
+            </nav>
+        </header>
+        <main>
+            <div class="product-grid">
+                <article class="product-card">
+                    <h2>Premium Widget</h2>
+                    <div class="price-container">
+                        <span class="currency">$</span>
+                        <span class="value">49.99</span>
+                    </div>
+                    <button class="add-btn">Add to Cart</button>
+                </article>
+                <article class="product-card">
+                    <h2>Basic Widget</h2>
+                    <div class="price-container">
+                        <span class="currency">$</span>
+                        <span class="value">19.99</span>
+                    </div>
+                    <button class="add-btn">Add to Cart</button>
+                </article>
+            </div>
+            
+            <section class="cart-summary hidden">
+                <div class="subtotal-row">
+                    <span>Subtotal</span>
+                    <span class="amount">$69.98</span>
+                </div>
+                <div class="shipping-row">
+                    <span>Delivery</span>
+                    <span class="amount">$5.00</span>
+                </div>
+                <div class="discount-row">
+                    <span>Promo Applied</span>
+                    <span class="amount">-$10.00</span>
+                </div>
+                <div class="total-row">
+                    <span>Total</span>
+                    <span class="amount">$64.98</span>
+                </div>
+            </section>
+
+            <section class="test-input">
+                <form>
+                    <label for="promo-code">Promo Code</label>
+                    <input type="text" id="promo-code" name="promo" placeholder="Enter code here" />
+                    <button type="submit">Apply</button>
+                </form>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

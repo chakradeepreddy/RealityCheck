@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Legacy Table Shop</title>
+</head>
+<body>
+    <table width="100%">
+        <tr>
+            <td>
+                <a href="/cart.php">View Cart</a>
+            </td>
+        </tr>
+    </table>
+    
+    <table border="1">
+        <tr>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Action</th>
+        </tr>
+        <tr>
+            <td>Standard Item</td>
+            <td class="item-price">$10.00</td>
+            <td>
+                <form action="/add" method="POST">
+                    <input type="hidden" name="id" value="1">
+                    <input type="submit" value="Buy Now">
+                </form>
+            </td>
+        </tr>
+        <tr>
+            <td>Deluxe Item</td>
+            <td class="item-price">$50.00</td>
+            <td>
+                <form action="/add" method="POST">
+                    <input type="hidden" name="id" value="2">
+                    <input type="submit" value="Buy Now">
+                </form>
+            </td>
+        </tr>
+    </table>
+
+    <hr>
+    
+    <h3>Shopping Cart</h3>
+    <table id="cart-table">
+        <tr>
+            <td><b>Subtotal:</b></td>
+            <td id="cart-subtotal">$60.00</td>
+        </tr>
+        <tr>
+            <td><b>Shipping:</b></td>
+            <td id="shipping-cost">Free</td>
+        </tr>
+        <tr>
+            <td><b>Total:</b></td>
+            <td id="final-total">$60.00</td>
+        </tr>
+    </table>
+
+    <div>
+        <label>Canary Text: <input type="text" name="q" /></label>
+        <button id="search-btn">Go</button>
+    </div>
+</body>
+</html>
