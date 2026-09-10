@@ -1,14 +1,45 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { HomePage } from './pages/HomePage';
 import { RunDetailsPage } from './pages/RunDetailsPage';
 import { HistoryPage } from './pages/HistoryPage';
 import { EvidenceVaultPage } from './pages/EvidenceVaultPage';
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
 export default function App() {
+  const [introFinished, setIntroFinished] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIntroFinished(true), 2500);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-[#0b0f19] text-slate-200 font-sans relative overflow-hidden">
+      <ScrollToTop />
+      
+      {/* Intro Overlay */}
+      {!introFinished && (
+        <div className="fixed inset-0 z-[100] bg-[#0b0f19] flex items-center justify-center animate-intro-fade-out pointer-events-none">
+          <div className="flex flex-col items-center animate-intro-scale-up">
+            <div className="relative mb-6">
+              <div className="absolute inset-0 bg-blue-500 rounded-2xl blur-xl opacity-60 animate-pulse" />
+              <img src="/logo.jpg" alt="RealityCheck Logo" className="relative w-24 h-24 rounded-2xl shadow-2xl border-2 border-slate-700/50" />
+            </div>
+            <h1 className="text-4xl font-black tracking-tight text-white text-glow mb-2">RealityCheck</h1>
+            <p className="text-blue-400 font-bold uppercase tracking-widest text-sm">Initializing Evidence Laboratory...</p>
+          </div>
+        </div>
+      )}
+
+      <div className={`min-h-screen bg-[#0b0f19] text-slate-200 font-sans relative overflow-hidden ${!introFinished ? 'opacity-0' : 'animate-fade-in-content'}`}>
         {/* Decorative Background Gradients */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[500px] bg-gradient-to-b from-blue-900/20 via-purple-900/10 to-transparent pointer-events-none rounded-full blur-3xl opacity-50 mix-blend-screen" />
 
