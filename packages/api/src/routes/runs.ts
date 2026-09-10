@@ -4,7 +4,8 @@ import { AdapterRegistry } from '@realitycheck/browser';
 import { ClaimCompiler } from '@realitycheck/contracts';
 import { RealityCheckOrchestrator } from '@realitycheck/orchestrator';
 import { ExperimentRepository } from '@realitycheck/db';
-
+import fs from 'fs/promises';
+import path from 'path';
 const CreateRunSchema = z.object({
   claim: z.string().min(1),
   claimAttachmentPath: z.string().optional(),
@@ -160,6 +161,39 @@ export async function runRoutes(app: FastifyInstance) {
       if (!existing) {
         return reply.code(404).send({ error: 'Run not found' });
       }
+
+      // Delete associated evidence files
+      const evidenceDir = path.join(process.cwd(), 'data', 'evidence');
+      
+      const deleteFile = async (filename: string) => {
+        try {
+          await fs.unlink(path.join(evidenceDir, filename));
+        } catch (e: any) {
+          if (e.code !== 'ENOENT') {
+            app.log.warn(`Failed to delete evidence file ${filename}: ${e.message}`);
+          }
+        }
+      };
+
+      if (existing.claimAttachmentPath) {
+        await deleteFile(existing.claimAttachmentPath);
+      }
+
+      if (existing.observations) {
+        for (const obs of existing.observations) {
+          if (obs.evidenceRefs) {
+            try {
+              const refs = JSON.parse(obs.evidenceRefs);
+              if (refs.screenshotPath) {
+                await deleteFile(refs.screenshotPath);
+              }
+            } catch (e) {
+              // ignore parse errors
+            }
+          }
+        }
+      }
+
       await repository.deleteRun(runId);
       return reply.code(204).send();
     } catch (error: any) {

@@ -99,9 +99,9 @@ export function HistoryPage() {
                 )}
               </button>
 
-              <div className="flex justify-between items-start mb-4 pr-10">
+              <div className="flex flex-col sm:flex-row justify-between items-start mb-4 sm:pr-10 gap-2 sm:gap-0">
                 <div>
-                  <div className="flex items-center gap-3 mb-2">
+                  <div className="flex items-center gap-3 mb-2 flex-wrap">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${
                       VERDICT_BADGE[run.verdict || 'INCONCLUSIVE'] || VERDICT_BADGE.INCONCLUSIVE
                     }`}>
@@ -112,14 +112,15 @@ export function HistoryPage() {
                   </div>
                   <h3 className="text-lg font-semibold text-slate-900 line-clamp-2">{run.claim}</h3>
                 </div>
-                <div className="text-right text-sm text-slate-400 shrink-0">
+                <div className="text-left sm:text-right text-sm text-slate-400 shrink-0">
                   {new Date(run.startedAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
-                  <br />
+                  <span className="sm:hidden"> &middot; </span>
+                  <br className="hidden sm:block" />
                   {new Date(run.startedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 text-sm mb-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm mb-5">
                 <div>
                   <span className="text-slate-500 block mb-0.5">Target:</span>
                   <a href={run.targetUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline break-all text-xs font-mono">

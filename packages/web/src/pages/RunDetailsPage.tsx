@@ -104,10 +104,10 @@ export function RunDetailsPage() {
           
           {/* VERDICT SUMMARY */}
           <div>
-            <div className={`inline-flex px-6 py-3 rounded-full text-lg font-extrabold uppercase tracking-widest mb-4 shadow-sm border-2 ${
-              currentRun.verdict === 'SUPPORTED' ? 'bg-green-100 text-green-800 border-green-300 shadow-green-100' :
-              currentRun.verdict === 'CONTRADICTED' ? 'bg-red-100 text-red-800 border-red-300 shadow-red-100' :
-              'bg-slate-100 text-slate-800 border-slate-300 shadow-slate-100'
+            <div className={`inline-flex px-6 py-3 rounded-full text-lg font-black uppercase tracking-widest mb-4 border ${
+              currentRun.verdict === 'SUPPORTED' ? 'bg-gradient-to-r from-emerald-50 to-emerald-100 text-emerald-800 border-emerald-200 shadow-[0_0_15px_rgba(16,185,129,0.15)]' :
+              currentRun.verdict === 'CONTRADICTED' ? 'bg-gradient-to-r from-rose-50 to-rose-100 text-rose-800 border-rose-200 shadow-[0_0_15px_rgba(244,63,94,0.15)]' :
+              'bg-gradient-to-r from-slate-50 to-slate-100 text-slate-800 border-slate-200 shadow-sm'
             }`}>
               {currentRun.verdict}
             </div>
@@ -133,14 +133,14 @@ export function RunDetailsPage() {
             <>
               <section>
                 <h4 className="text-lg font-bold text-slate-900 mb-3">WHAT WE TESTED</h4>
-                <div className="bg-white p-4 rounded-lg border border-slate-200 grid grid-cols-2 gap-4">
+                <div className="bg-white p-4 rounded-lg border border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <span className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Primitive</span>
-                    <span className="text-slate-900">{currentRun.primitive}</span>
+                    <span className="text-slate-900 break-words">{currentRun.primitive}</span>
                   </div>
                   <div>
                     <span className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Execution Mode</span>
-                    <span className="text-slate-900">{currentRun.executionMode}</span>
+                    <span className="text-slate-900 break-words">{currentRun.executionMode}</span>
                   </div>
                 </div>
               </section>
@@ -226,7 +226,7 @@ export function RunDetailsPage() {
         </div>
         
         <div className="space-y-6">
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm sticky top-6">
+          <div className="bg-gradient-to-b from-white to-slate-50 p-6 rounded-2xl border border-slate-200 shadow-md sticky top-6">
             <h3 className="font-semibold text-slate-800 mb-4 text-sm uppercase tracking-wider">Run Metadata</h3>
             <dl className="space-y-4 text-sm mb-6">
               <div>

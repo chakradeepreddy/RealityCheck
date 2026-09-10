@@ -47,7 +47,7 @@ export function buildApp(deps?: AppDependencies): FastifyInstance {
         cb(new Error('Not allowed by CORS'), false);
       }
     },
-    methods: ['GET', 'POST', 'OPTIONS']
+    methods: ['GET', 'POST', 'DELETE', 'OPTIONS']
   });
 
   if (deps) {
