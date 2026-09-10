@@ -20,7 +20,8 @@ export class QuickCartAdapter implements SiteAdapter<Page> {
     
     // Attempt to reset state before proceeding, if the endpoint exists
     try {
-      await page.request.post('http://127.0.0.1:5173/__test/reset');
+      const origin = new URL(url).origin;
+      await page.request.post(`${origin}/__test/reset`);
     } catch {
       // Ignore if reset endpoint is not available
     }
@@ -39,7 +40,8 @@ export class QuickCartAdapter implements SiteAdapter<Page> {
     // However, we MUST preserve the scenario query parameters set by the test spec!
     const currentUrl = new URL(page.url());
     const searchParams = currentUrl.search;
-    await page.goto(`http://127.0.0.1:5173/${searchParams}`, { waitUntil: 'domcontentloaded' });
+    const origin = currentUrl.origin;
+    await page.goto(`${origin}/${searchParams}`, { waitUntil: 'domcontentloaded' });
 
     if (spec?.boundaryType === 'QUANTITY_DISCOUNT') {
       // targetValue represents quantity of items to add

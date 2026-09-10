@@ -23,6 +23,14 @@ export const ExperimentSpecSchema = z.object({
       quantity: z.number().int().positive()
     })).optional(),
     cartSubtotalTarget: z.number().positive().optional(),
+    // Generic numeric target for non-QuickCart adapters (e.g. price, discount%)
+    numericTarget: z.number().optional(),
+    // The pageState field the BoundaryEngine should analyse (e.g. 'cartSubtotal', 'maxDiscountPercent', 'minPrice')
+    observableInputKey: z.string().optional(),
+    // The pageState field that signals the threshold crossing (e.g. 'shippingCost', 'discountApplied')
+    observableOutputKey: z.string().optional(),
+    // The value the output key transitions FROM at the boundary (e.g. shipping cost = 0 means free)
+    observableOutputThreshold: z.number().optional(),
     canaryInputTarget: z.string().optional(),
     allowedDestinations: z.array(z.string()).optional()
   }),

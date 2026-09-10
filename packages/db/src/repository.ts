@@ -109,4 +109,10 @@ export class ExperimentRepository {
     });
     return allRuns;
   }
+
+  async deleteRun(runId: string): Promise<boolean> {
+    // Observations cascade-delete via FK constraint (onDelete: 'cascade')
+    await this.db.delete(schema.runs).where(eq(schema.runs.id, runId));
+    return true;
+  }
 }

@@ -26,19 +26,35 @@ Translate natural language claims into a structured ExperimentSpec JSON object.
 Always return valid JSON. Do NOT explain. Do NOT add extra text.
 
 SUPPORTED CLAIM FAMILIES:
-A. NUMERIC THRESHOLD / BOUNDARY (e.g. "Free shipping on orders of 999 or more", "Free delivery above 999", "Orders worth 999 get free shipping")
+A. NUMERIC THRESHOLD / BOUNDARY — QuickCart (e.g. "Free shipping on orders of 999 or more")
    -> primitive: "BOUNDARY", boundaryType: "NUMERIC_THRESHOLD", testConditions.cartSubtotalTarget: <number>
 
-B. QUANTITY / PRODUCT COUNT DISCOUNT (e.g. "Buy 3 products and get 10% off", "10% discount when buying 3+ products", "Get 10 percent discount for 3 or more items", "10% off when cart quantity reaches 3")
+B. QUANTITY / PRODUCT COUNT DISCOUNT (e.g. "Buy 3 products and get 10% off")
    -> primitive: "BOUNDARY", boundaryType: "QUANTITY_DISCOUNT", testConditions.itemsToAdd: [{"quantity": <number>}], expectedObservables.discountApplied: true
 
 C. SPEND-TO-SAVE / FEE THRESHOLD (e.g. "Spend 2000 and get 200 off")
    -> primitive: "BOUNDARY", boundaryType: "SPEND_TO_SAVE", testConditions.cartSubtotalTarget: <number>
 
-D. CANARY / CONTROLLED DATA-LEAK CLAIM (e.g. "Does this form send my information to another website?", "Check whether my submitted information is shared with a third party")
+D. CANARY / CONTROLLED DATA-LEAK CLAIM (e.g. "Does this form send my information to another website?")
    -> primitive: "CANARY", testConditions.canaryInputTarget: "email_input", testConditions.allowedDestinations: []
+   For juice-shop.herokuapp.com, set allowedDestinations: ["juice-shop.herokuapp.com"]
 
-E. UNSUPPORTED / AMBIGUOUS CLAIMS (e.g. "This website is trustworthy", "The product is high quality", "This company respects my privacy")
+E. PRODUCT PRICE / DISCOUNT % BOUNDARY (for Flipkart, SauceDemo, or Juice Shop):
+   - "Every laptop has at least X% discount" / "At least one product has over X% off" (Flipkart)
+     -> primitive: "BOUNDARY", boundaryType: "NUMERIC_THRESHOLD",
+        testConditions.numericTarget: X (the discount %), 
+        testConditions.observableInputKey: "maxDiscountPercent",
+        testConditions.observableOutputKey: "maxDiscountPercent",
+        testConditions.observableOutputThreshold: X
+   - "The cheapest item costs less than $X" / "Minimum price is under $X" (SauceDemo, Juice Shop)
+     -> primitive: "BOUNDARY", boundaryType: "NUMERIC_THRESHOLD",
+        testConditions.numericTarget: X (the price),
+        testConditions.observableInputKey: "minItemPrice",
+        testConditions.observableOutputKey: "minItemPrice",
+        testConditions.observableOutputThreshold: X
+   - For juice-shop.herokuapp.com use observableInputKey: "minPrice" instead
+
+F. UNSUPPORTED / AMBIGUOUS CLAIMS (e.g. "This website is trustworthy", "The product is high quality")
    If the claim cannot be mapped to the above verifiable experiments, set primitive to "UNSUPPORTED".
 
 Rules for properties:
@@ -105,13 +121,16 @@ ${JSON.stringify(jsonSchema)}
     }
 
     if (spec.primitive === 'BOUNDARY') {
-      if (spec.boundaryType !== 'NUMERIC_THRESHOLD' && spec.boundaryType !== 'QUANTITY_DISCOUNT') {
-        throw new Error(`Semantic validation failure: unsupported boundaryType ${spec.boundaryType}`);
+      if (!spec.boundaryType) {
+        throw new Error('Semantic validation failure: BOUNDARY primitive requires a boundaryType');
       }
 
       if (spec.boundaryType === 'NUMERIC_THRESHOLD') {
-        if (typeof spec.testConditions.cartSubtotalTarget !== 'number' || !Number.isFinite(spec.testConditions.cartSubtotalTarget)) {
-          throw new Error('Semantic validation failure: Invalid or missing numeric threshold (cartSubtotalTarget)');
+        // Accept either cartSubtotalTarget (QuickCart) or numericTarget (new adapters)
+        const hasTarget = (typeof spec.testConditions.cartSubtotalTarget === 'number' && Number.isFinite(spec.testConditions.cartSubtotalTarget))
+          || (typeof spec.testConditions.numericTarget === 'number' && Number.isFinite(spec.testConditions.numericTarget));
+        if (!hasTarget) {
+          throw new Error('Semantic validation failure: Invalid or missing numeric threshold (cartSubtotalTarget or numericTarget)');
         }
       }
 

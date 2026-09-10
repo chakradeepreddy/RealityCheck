@@ -3,9 +3,18 @@ import { RealityCheckOrchestrator } from '@realitycheck/orchestrator';
 import { ExperimentRepository, createDatabase } from '@realitycheck/db';
 import { GroqClaimCompiler } from '@realitycheck/compiler';
 import Database from 'better-sqlite3';
-import { AdapterRegistry, QuickCartAdapter } from '@realitycheck/browser';
+import {
+  AdapterRegistry,
+  QuickCartAdapter,
+  FlipkartAdapter,
+  SauceDemoAdapter,
+  JuiceShopAdapter
+} from '@realitycheck/browser';
 
 AdapterRegistry.register(new QuickCartAdapter());
+AdapterRegistry.register(new FlipkartAdapter());
+AdapterRegistry.register(new SauceDemoAdapter());
+AdapterRegistry.register(new JuiceShopAdapter());
 
 const HOST = process.env.HOST || '127.0.0.1';
 const PORT = parseInt(process.env.PORT || '3001', 10);

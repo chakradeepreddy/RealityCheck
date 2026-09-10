@@ -15,13 +15,26 @@ export const ObservationSchema = z.object({
   }).optional(),
 
   pageState: z.object({
+    // QuickCart fields (kept for backwards compatibility)
     cartSubtotal: z.number().optional(),
     shippingCost: z.number().optional(),
     discountApplied: z.boolean().optional(),
     discountValue: z.number().optional(),
     feeApplied: z.boolean().optional(),
     feeValue: z.number().optional(),
-    quantities: z.record(z.string(), z.number()).optional(), // itemId -> quantity
+    quantities: z.record(z.string(), z.number()).optional(),
+    // Flipkart adapter fields
+    maxDiscountPercent: z.number().optional(),
+    discountCount: z.number().optional(),
+    // SauceDemo adapter fields
+    minItemPrice: z.number().optional(),
+    maxItemPrice: z.number().optional(),
+    itemCount: z.number().optional(),
+    allPrices: z.array(z.number()).optional(),
+    // Juice Shop adapter fields
+    minPrice: z.number().optional(),
+    maxPrice: z.number().optional(),
+    productCount: z.number().optional(),
   }).optional(),
 
   // Can include raw text extracted from relevant DOM elements

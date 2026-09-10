@@ -67,20 +67,32 @@ export class ExperimentExecutor {
     let actualProbeStates: number[] = probeStates || [];
 
     if (spec.boundaryType === 'NUMERIC_THRESHOLD') {
-      const expectedCartSubtotalTarget = spec.testConditions.cartSubtotalTarget;
-      if (expectedCartSubtotalTarget === undefined) {
+      // Prefer generic numericTarget over legacy cartSubtotalTarget
+      const target = spec.testConditions.numericTarget ?? spec.testConditions.cartSubtotalTarget;
+      if (target === undefined) {
         return {
           spec,
           observations: [],
           verifierResult: {
             verdict: 'INCONCLUSIVE',
-            reason: 'ExperimentSpec is missing required cartSubtotalTarget.'
+            reason: 'ExperimentSpec is missing required numeric target (numericTarget or cartSubtotalTarget).'
           }
         };
       }
-      expectedTarget = expectedCartSubtotalTarget;
+      expectedTarget = target;
+      
+      // Read-once adapters (Flipkart, SauceDemo, JuiceShop) declare same key for input and output.
+      // They don't need multiple probe states — just one observation.
+      const isReadOnce = spec.testConditions.observableInputKey != null
+        && spec.testConditions.observableInputKey === spec.testConditions.observableOutputKey;
+      
       if (!probeStates) {
-        actualProbeStates = DeterministicProbePlanner.planNumericBoundaryProbes(expectedCartSubtotalTarget);
+        if (isReadOnce) {
+          // Single probe at the claimed target (value doesn't matter — adapter ignores it)
+          actualProbeStates = [target];
+        } else {
+          actualProbeStates = DeterministicProbePlanner.planNumericBoundaryProbes(target);
+        }
       }
     } else if (spec.boundaryType === 'QUANTITY_DISCOUNT') {
       const itemsToAdd = spec.testConditions.itemsToAdd;
@@ -131,12 +143,48 @@ export class ExperimentExecutor {
     // 3. Boundary Engine isolates the numeric transition
     let analysis;
     if (spec.boundaryType === 'NUMERIC_THRESHOLD') {
-      analysis = BoundaryEngine.analyzeNumericThreshold(
-        observations,
-        'cartSubtotal',
-        'shippingCost',
-        0
-      );
+      // Use spec-declared keys, fall back to QuickCart defaults for backwards compatibility
+      type PageStateKey = keyof NonNullable<import('@realitycheck/contracts').Observation['pageState']>;
+      const inputKey = (spec.testConditions.observableInputKey || 'cartSubtotal') as PageStateKey;
+      const outputKey = (spec.testConditions.observableOutputKey || 'shippingCost') as PageStateKey;
+      const outputThreshold = spec.testConditions.observableOutputThreshold ?? 0;
+
+      // Read-once mode: single observation, direct comparison of observed value vs claimed target.
+      // Used by Flipkart (maxDiscountPercent), SauceDemo (minItemPrice), JuiceShop (minPrice).
+      const isReadOnce = spec.testConditions.observableInputKey != null
+        && spec.testConditions.observableInputKey === outputKey;
+
+      if (isReadOnce && observations.length > 0) {
+        const obs = observations[0];
+        const observedVal = obs.pageState?.[inputKey] as number | undefined;
+
+        if (observedVal === undefined || observedVal === null) {
+          analysis = {
+            status: 'BOUNDARY_NOT_ESTABLISHED' as const,
+            supportingObservations: observations,
+            reason: `Could not read '${String(inputKey)}' from observed page state.`
+          };
+        } else {
+          // For "at least X%" type claims: observed >= claimed => SUPPORTED, else CONTRADICTED
+          // For "less than $X" type claims: observed <= claimed => SUPPORTED, else CONTRADICTED
+          // We encode this as: if observedVal meets the claimed threshold boundary, it's SUPPORTED.
+          // The verifier uses claimedBoundary vs observedBoundary. If they match, SUPPORTED.
+          // We'll set observedBoundary = observedVal and claimedBoundary = expectedTarget.
+          analysis = {
+            status: 'BOUNDARY_FOUND' as const,
+            observedBoundary: observedVal,
+            supportingObservations: observations,
+            reason: `Observed ${String(inputKey)} = ${observedVal}, claimed threshold = ${expectedTarget}.`
+          };
+        }
+      } else {
+        analysis = BoundaryEngine.analyzeNumericThreshold(
+          observations,
+          inputKey,
+          outputKey,
+          outputThreshold
+        );
+      }
     } else {
       // For quantity discounts, we want to observe discountApplied becoming true
       // We pass the quantity as input. Since QuickCartAdapter observeState doesn't return the explicit quantity in pageState

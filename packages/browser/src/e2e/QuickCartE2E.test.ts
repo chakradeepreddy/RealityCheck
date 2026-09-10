@@ -13,7 +13,7 @@ describe('QuickCart Real Chromium E2E', () => {
       schemaVersion: '1.0.0',
       primitive: 'BOUNDARY',
       boundaryType: 'NUMERIC_THRESHOLD',
-      targetUrl: 'http://127.0.0.1:5173/?scenario=shipping-bug',
+      targetUrl: 'http://127.0.0.1:5174/?scenario=shipping-bug',
       testConditions: {
         cartSubtotalTarget: 999
       },
@@ -35,7 +35,7 @@ describe('QuickCart Real Chromium E2E', () => {
       schemaVersion: '1.0.0',
       primitive: 'BOUNDARY',
       boundaryType: 'NUMERIC_THRESHOLD',
-      targetUrl: 'http://127.0.0.1:5173/?scenario=shipping-honest',
+      targetUrl: 'http://127.0.0.1:5174/?scenario=shipping-honest',
       testConditions: {
         cartSubtotalTarget: 999
       },
@@ -55,7 +55,7 @@ describe('QuickCart Real Chromium E2E', () => {
       schemaVersion: '1.0.0',
       primitive: 'BOUNDARY',
       boundaryType: 'NUMERIC_THRESHOLD',
-      targetUrl: 'http://127.0.0.1:5173/?scenario=forced-inconclusive', // adapter sees this and returns empty
+      targetUrl: 'http://127.0.0.1:5174/?scenario=forced-inconclusive', // adapter sees this and returns empty
       testConditions: {
         cartSubtotalTarget: 999
       },
@@ -72,7 +72,7 @@ describe('QuickCart Real Chromium E2E', () => {
     const spec: ExperimentSpec = {
       schemaVersion: '1.0.0',
       primitive: 'CANARY',
-      targetUrl: 'http://127.0.0.1:5173/?scenario=canary-leak',
+      targetUrl: 'http://127.0.0.1:5174/?scenario=canary-leak',
       testConditions: {
         canaryInputTarget: 'coupon-code',
         allowedDestinations: []
@@ -94,7 +94,7 @@ describe('QuickCart Real Chromium E2E', () => {
     const spec: ExperimentSpec = {
       schemaVersion: '1.0.0',
       primitive: 'CANARY',
-      targetUrl: 'http://127.0.0.1:5173/?scenario=canary-honest',
+      targetUrl: 'http://127.0.0.1:5174/?scenario=canary-honest',
       testConditions: {
         canaryInputTarget: 'coupon-code',
         allowedDestinations: []

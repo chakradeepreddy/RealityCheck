@@ -24,10 +24,10 @@ export class DeterministicVerifier {
       };
     }
 
-    if (spec.boundaryType !== 'NUMERIC_THRESHOLD' && spec.boundaryType !== 'QUANTITY_DISCOUNT') {
+    if (!spec.boundaryType) {
       return {
         verdict: VerdictEnum.INCONCLUSIVE,
-        reason: 'Unsupported boundary type for this verifier version.'
+        reason: 'Missing boundaryType in experiment spec.'
       };
     }
 
@@ -67,6 +67,47 @@ export class DeterministicVerifier {
       };
     }
 
+    // Read-once mode: observableInputKey === observableOutputKey.
+    // We compare the single observed value directly against the claimed threshold.
+    const isReadOnce = spec.testConditions?.observableInputKey != null
+      && spec.testConditions.observableInputKey === spec.testConditions.observableOutputKey;
+
+    if (isReadOnce) {
+      const outputThreshold = spec.testConditions?.observableOutputThreshold;
+      if (outputThreshold !== undefined && outputThreshold !== null) {
+        // observableOutputThreshold is the claimed threshold value.
+        // For "discount >= X%": observed >= threshold => SUPPORTED
+        // For "price <= $X": observed <= threshold => SUPPORTED
+        // We infer direction: if claim is about a MAX metric (discount %), it's "at least X" => observed >= threshold
+        // If claim is about a MIN metric (price), it's "at most X" => observed <= threshold
+        // Heuristic: observedBoundary represents "max discount %" = higher is better => threshold
+        //           observedBoundary represents "min price" = lower is better => threshold
+        // We use the key name to determine direction:
+        const key = String(spec.testConditions.observableInputKey);
+        const isMinMetric = key.toLowerCase().includes('min') || key.toLowerCase().includes('price') || key.toLowerCase().includes('cost');
+        const meetsThreshold = isMinMetric
+          ? observedBoundary <= outputThreshold  // "price < $X" → observed <= X is SUPPORTED
+          : observedBoundary >= outputThreshold; // "discount >= X%" → observed >= X is SUPPORTED
+
+        if (meetsThreshold) {
+          return {
+            verdict: VerdictEnum.SUPPORTED,
+            claimedBoundary,
+            observedBoundary,
+            reason: `Observed ${key} = ${observedBoundary}, which ${isMinMetric ? '≤' : '≥'} claimed threshold of ${outputThreshold}. Claim is SUPPORTED.`
+          };
+        } else {
+          return {
+            verdict: VerdictEnum.CONTRADICTED,
+            claimedBoundary,
+            observedBoundary,
+            reason: `Observed ${key} = ${observedBoundary}, which does NOT meet claimed threshold of ${outputThreshold}. Claim is CONTRADICTED.`
+          };
+        }
+      }
+    }
+
+    // Standard multi-probe boundary comparison (QuickCart)
     if (observedBoundary === claimedBoundary) {
       return {
         verdict: VerdictEnum.SUPPORTED,

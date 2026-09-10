@@ -74,5 +74,16 @@ export const apiClient = {
       method: 'POST',
       body: JSON.stringify({ executionMode }),
     });
+  },
+
+  async deleteRun(runId: string): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/api/runs/${runId}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok && response.status !== 204) {
+      let errorData;
+      try { errorData = await response.json(); } catch { errorData = { message: response.statusText }; }
+      throw new ApiError(response.status, errorData);
+    }
   }
 };

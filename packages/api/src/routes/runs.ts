@@ -152,4 +152,19 @@ export async function runRoutes(app: FastifyInstance) {
       return reply.code(500).send({ error: 'Internal Server Error', message: error.message });
     }
   });
+
+  app.delete('/:runId', async (request: FastifyRequest<{ Params: { runId: string } }>, reply: FastifyReply) => {
+    try {
+      const runId = request.params.runId;
+      const existing = await repository.getRun(runId);
+      if (!existing) {
+        return reply.code(404).send({ error: 'Run not found' });
+      }
+      await repository.deleteRun(runId);
+      return reply.code(204).send();
+    } catch (error: any) {
+      app.log.error(error);
+      return reply.code(500).send({ error: 'Internal Server Error', message: error.message });
+    }
+  });
 }
