@@ -15,7 +15,7 @@ describe('ExperimentForm', () => {
     
     expect(screen.getByLabelText(/Target URL/i)).toBeDefined();
     expect(screen.getByLabelText(/^Claim$/i)).toBeDefined();
-    expect(screen.getByRole('button', { name: /Run Check/i })).toBeDefined();
+    expect(screen.getByRole('button', { name: /RUN REALITYCHECK/i })).toBeDefined();
   });
 
   it('shows error on invalid URL', () => {
@@ -28,7 +28,7 @@ describe('ExperimentForm', () => {
     fireEvent.change(urlInput, { target: { value: 'not-a-url' } });
     fireEvent.change(claimInput, { target: { value: 'Valid claim' } });
     
-    fireEvent.submit(screen.getByRole('button', { name: /Run Check/i }));
+    fireEvent.submit(screen.getByRole('button', { name: /RUN REALITYCHECK/i }));
     
     expect(onSubmit).not.toHaveBeenCalled();
     expect(screen.getByText(/Please enter a valid URL/i)).toBeDefined();
@@ -46,7 +46,7 @@ describe('ExperimentForm', () => {
     fireEvent.change(claimInput, { target: { value: 'Valid claim' } });
     fireEvent.change(modeSelect, { target: { value: 'AUTHORIZED_LIVE' } });
     
-    fireEvent.submit(screen.getByRole('button', { name: /Run Check/i }));
+    fireEvent.submit(screen.getByRole('button', { name: /RUN REALITYCHECK/i }));
     
     expect(onSubmit).toHaveBeenCalledWith('https://example.com', 'Valid claim', 'AUTHORIZED_LIVE', undefined);
     expect(screen.queryByText(/Please enter a valid URL/i)).toBeNull();
@@ -57,6 +57,6 @@ describe('ExperimentForm', () => {
     
     expect((screen.getByLabelText(/Target URL/i) as HTMLInputElement).disabled).toBe(true);
     expect((screen.getByLabelText(/^Claim$/i) as HTMLTextAreaElement).disabled).toBe(true);
-    expect((screen.getByRole('button', { name: /Running experiment/i }) as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByRole('button', { name: /Running verification/i }) as HTMLButtonElement).disabled).toBe(true);
   });
 });

@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { apiClient } from '../api/client';
-import type { Run } from '../api/types';
+import type { Run, Verdict, Primitive } from '../api/types';
+import { Trash2, Play, ChevronRight, Activity, Filter } from 'lucide-react';
 
 const VERDICT_BADGE: Record<string, string> = {
-  SUPPORTED: 'bg-verdict-supported/20 text-verdict-supported border-verdict-supported/30 shadow-[0_0_10px_rgba(34,197,94,0.2)]',
-  CONTRADICTED: 'bg-verdict-contradicted/20 text-verdict-contradicted border-verdict-contradicted/30 shadow-[0_0_10px_rgba(239,68,68,0.2)]',
-  INCONCLUSIVE: 'bg-verdict-inconclusive/20 text-verdict-inconclusive border-verdict-inconclusive/30 shadow-[0_0_10px_rgba(148,163,184,0.2)]'
+  SUPPORTED: 'bg-verdict-supported/10 text-verdict-supported border-verdict-supported/30',
+  CONTRADICTED: 'bg-verdict-contradicted/10 text-verdict-contradicted border-verdict-contradicted/30',
+  INCONCLUSIVE: 'bg-verdict-inconclusive/10 text-verdict-inconclusive border-verdict-inconclusive/30'
 };
 
 export function HistoryPage() {
@@ -14,6 +15,10 @@ export function HistoryPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  // Filtering states
+  const [filterVerdict, setFilterVerdict] = useState<Verdict | 'ALL'>('ALL');
+  const [filterPrimitive, setFilterPrimitive] = useState<Primitive | 'ALL'>('ALL');
 
   useEffect(() => {
     fetchHistory();
@@ -47,110 +52,160 @@ export function HistoryPage() {
     }
   };
 
+  const filteredRuns = runs.filter(run => {
+    if (filterVerdict !== 'ALL' && run.verdict !== filterVerdict) return false;
+    if (filterPrimitive !== 'ALL' && run.primitive !== filterPrimitive) return false;
+    return true;
+  });
+
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-off-white" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-accent" />
       </div>
     );
   }
 
   if (error) {
-    return <div className="text-red-500 bg-red-50 p-4 rounded-lg">{error}</div>;
+    return (
+      <div className="bg-red-500/10 border border-red-500/30 p-4 rounded-lg">
+        <h3 className="text-red-400 font-bold mb-1">Error Loading History</h3>
+        <p className="text-sm text-red-300">{error}</p>
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-black tracking-tight text-white text-glow">VERIFICATION HISTORY</h1>
-        <span className="text-sm font-bold text-cyan-accent bg-cyan-accent/10 px-3 py-1 rounded-full border border-cyan-accent/30">{runs.length} RUN{runs.length !== 1 ? 'S' : ''}</span>
+    <div className="space-y-6 animate-in fade-in duration-500">
+      
+      {/* HEADER & FILTERS */}
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-8">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <Activity className="w-6 h-6 text-cyan-accent" />
+            <h1 className="text-2xl md:text-3xl font-black tracking-tight text-white text-glow">VERIFICATION LOGS</h1>
+          </div>
+          <p className="text-sm text-slate-muted font-mono">Total records: {runs.length} | Filtered: {filteredRuns.length}</p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 bg-navy-surface p-2 rounded-lg border border-navy-border">
+          <div className="flex items-center gap-2 pl-2">
+            <Filter className="w-4 h-4 text-slate-500" />
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Filter</span>
+          </div>
+          <div className="h-4 w-px bg-navy-border mx-1" />
+          
+          <select 
+            value={filterVerdict} 
+            onChange={(e) => setFilterVerdict(e.target.value as any)}
+            className="bg-navy-bg border border-navy-border text-xs font-bold text-off-white rounded px-2 py-1.5 uppercase outline-none focus:border-cyan-accent"
+          >
+            <option value="ALL">All Verdicts</option>
+            <option value="SUPPORTED">Supported</option>
+            <option value="CONTRADICTED">Contradicted</option>
+            <option value="INCONCLUSIVE">Inconclusive</option>
+          </select>
+
+          <select 
+            value={filterPrimitive} 
+            onChange={(e) => setFilterPrimitive(e.target.value as any)}
+            className="bg-navy-bg border border-navy-border text-xs font-bold text-off-white rounded px-2 py-1.5 uppercase outline-none focus:border-cyan-accent"
+          >
+            <option value="ALL">All Primitives</option>
+            <option value="BOUNDARY">Boundary</option>
+            <option value="CANARY">Canary</option>
+          </select>
+        </div>
       </div>
 
-      <div className="grid gap-6">
+      {/* LIST VIEW */}
+      <div className="flex flex-col gap-3">
         {runs.length === 0 ? (
-          <div className="text-center py-20 text-slate-muted glass-panel rounded-2xl">
-            <p className="text-xl font-bold mb-2 text-off-white">No verification runs yet</p>
-            <p className="text-sm">Use the quick presets on the home page to get started.</p>
+          <div className="text-center py-20 text-slate-muted glass-panel rounded-xl border-dashed">
+            <p className="text-xl font-bold mb-2 text-off-white">No verification logs found</p>
+            <p className="text-sm font-mono">Execute a verification from the command center.</p>
+          </div>
+        ) : filteredRuns.length === 0 ? (
+          <div className="text-center py-20 text-slate-muted glass-panel rounded-xl">
+            <p className="text-sm font-bold uppercase tracking-widest text-slate-400">No logs match filters</p>
           </div>
         ) : (
-          runs.map(run => (
+          filteredRuns.map(run => (
             <div
               key={run.id}
-              className="glass-panel rounded-xl p-6 transition-all hover:border-cyan-accent/40 hover:shadow-[0_0_20px_rgba(34,211,238,0.15)] relative group"
+              className="group flex flex-col lg:flex-row gap-4 p-4 glass-panel rounded-lg border border-navy-border hover:border-cyan-accent/50 hover:bg-cyan-accent/[0.02] transition-colors relative"
             >
-              {/* Delete button — top right */}
-              <button
-                id={`delete-run-${run.id}`}
-                onClick={(e) => handleDelete(run.id, e)}
-                disabled={deletingId === run.id}
-                className="absolute top-4 right-4 p-2 rounded-lg text-slate-muted hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-40"
-                title="Delete run"
-                aria-label="Delete run"
-              >
-                {deletingId === run.id ? (
-                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                  </svg>
-                ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"/>
-                  </svg>
-                )}
-              </button>
-
-              <div className="flex flex-col sm:flex-row justify-between items-start mb-4 sm:pr-12 gap-3 sm:gap-0">
-                <div>
-                  <div className="flex items-center gap-3 mb-3 flex-wrap">
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
-                      VERDICT_BADGE[run.verdict || 'INCONCLUSIVE'] || VERDICT_BADGE.INCONCLUSIVE
-                    }`}>
-                      {run.verdict || '—'}
-                    </span>
-                    <span className="text-xs bg-navy-surface/80 px-2 py-0.5 rounded border border-navy-border text-off-white font-bold tracking-wide uppercase">{run.primitive}</span>
-                    <span className="text-xs text-slate-muted font-mono">({run.executionMode})</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-off-white line-clamp-2 leading-snug group-hover:text-cyan-accent transition-colors">{run.claim}</h3>
+              {/* STATUS COLUMN */}
+              <div className="w-full lg:w-48 shrink-0 flex flex-row lg:flex-col items-center lg:items-start gap-3 lg:gap-2">
+                <div className={`inline-flex items-center justify-center px-2.5 py-1 rounded border text-[10px] font-black uppercase tracking-widest w-fit ${VERDICT_BADGE[run.verdict || 'INCONCLUSIVE']}`}>
+                  {run.verdict || 'INCONCLUSIVE'}
                 </div>
-                <div className="text-left sm:text-right text-[10px] font-bold tracking-widest uppercase text-slate-muted shrink-0 bg-navy-bg px-3 py-2 rounded-lg border border-navy-border">
-                  {new Date(run.startedAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
-                  <span className="sm:hidden mx-2"> &middot; </span>
-                  <br className="hidden sm:block" />
-                  {new Date(run.startedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                <div className="flex flex-row lg:flex-col gap-2 lg:gap-1 text-[10px] uppercase font-bold text-slate-muted tracking-widest">
+                  <span className="bg-navy-bg border border-navy-border px-1.5 py-0.5 rounded text-off-white w-fit">{run.primitive}</span>
+                  <span className="px-1.5 py-0.5">{run.executionMode}</span>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm mb-6 bg-navy-bg p-4 rounded-xl border border-navy-border">
-                <div>
-                  <span className="text-slate-muted block mb-1 text-[10px] uppercase font-bold tracking-widest">Target:</span>
-                  <a href={run.targetUrl} target="_blank" rel="noopener noreferrer" className="text-cyan-accent hover:text-cyan-accent/80 hover:underline break-all text-xs font-mono font-medium">
-                    {new URL(run.targetUrl).hostname}
-                  </a>
+              {/* DETAILS COLUMN */}
+              <div className="flex-1 min-w-0 flex flex-col gap-1.5 justify-center">
+                <h3 className="text-sm md:text-base font-bold text-off-white truncate" title={run.claim}>
+                  {run.claim}
+                </h3>
+                <div className="flex items-center gap-2 text-xs font-mono text-cyan-accent">
+                  <span className="truncate">{run.targetUrl ? new URL(run.targetUrl).hostname : 'Unknown Target'}</span>
                 </div>
-                <div>
-                  <span className="text-slate-muted block mb-1 text-[10px] uppercase font-bold tracking-widest">Reason:</span>
-                  <span className="text-off-white text-xs line-clamp-2 leading-relaxed">{run.verdictReason || 'No summary available.'}</span>
-                </div>
+                <p className="text-xs text-slate-400 line-clamp-1 lg:line-clamp-2 md:max-w-3xl">
+                  {run.verdictReason || 'No detailed reason provided.'}
+                </p>
               </div>
 
-              <div className="flex gap-3">
-                <Link
-                  to={`/runs/${run.id}`}
-                  className="inline-flex items-center justify-center px-5 py-2.5 bg-cyan-accent hover:bg-cyan-accent/90 text-navy-bg shadow-[0_0_15px_rgba(34,211,238,0.3)] hover:shadow-[0_0_20px_rgba(34,211,238,0.5)] text-xs font-bold uppercase tracking-wider rounded-lg transition-all"
-                >
-                  View Details
-                </Link>
-                <Link
-                  to={`/runs/${run.id}?action=replay`}
-                  className="inline-flex items-center justify-center px-5 py-2.5 bg-navy-surface hover:bg-navy-surface/80 text-off-white border border-navy-border hover:border-cyan-accent text-xs font-bold uppercase tracking-wider rounded-lg transition-all"
-                >
-                  Replay
-                </Link>
+              {/* METADATA & ACTIONS COLUMN */}
+              <div className="w-full lg:w-auto shrink-0 flex flex-row lg:flex-col items-center lg:items-end justify-between gap-3 border-t lg:border-t-0 border-navy-border pt-3 lg:pt-0 mt-2 lg:mt-0">
+                
+                <div className="text-[10px] font-mono text-slate-muted text-left lg:text-right">
+                  <div>{new Date(run.startedAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+                  <div>{new Date(run.startedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</div>
+                </div>
+                
+                <div className="flex items-center gap-2 lg:opacity-0 group-hover:opacity-100 transition-opacity focus-within:opacity-100">
+                  <button
+                    onClick={(e) => handleDelete(run.id, e)}
+                    disabled={deletingId === run.id}
+                    className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors disabled:opacity-50"
+                    title="Delete Run"
+                  >
+                    {deletingId === run.id ? (
+                      <div className="w-4 h-4 rounded-full border-2 border-red-500/30 border-t-red-500 animate-spin" />
+                    ) : (
+                      <Trash2 className="w-4 h-4" />
+                    )}
+                  </button>
+
+                  <Link
+                    to={`/runs/${run.id}?action=replay`}
+                    className="flex items-center gap-1 px-3 py-1.5 bg-navy-surface border border-navy-border text-off-white text-[10px] font-bold uppercase tracking-widest rounded hover:border-cyan-accent transition-colors"
+                    title="Replay Execution"
+                  >
+                    <Play className="w-3 h-3" />
+                    <span className="hidden sm:inline">Replay</span>
+                  </Link>
+
+                  <Link
+                    to={`/runs/${run.id}`}
+                    className="flex items-center gap-1 px-3 py-1.5 bg-cyan-accent text-navy-bg text-[10px] font-bold uppercase tracking-widest rounded hover:bg-cyan-accent/80 transition-colors shadow-[0_0_10px_rgba(34,211,238,0.2)]"
+                  >
+                    <span className="hidden sm:inline">Details</span>
+                    <ChevronRight className="w-3 h-3" />
+                  </Link>
+                </div>
+
               </div>
+
             </div>
           ))
         )}
       </div>
+
     </div>
   );
 }

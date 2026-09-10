@@ -155,7 +155,7 @@ export const ExperimentForm: React.FC<ExperimentFormProps> = ({ onSubmit, isLoad
           <input
             id="url"
             type="url"
-            className="w-full px-4 py-3 bg-navy-bg border border-navy-border rounded-xl focus:ring-2 focus:ring-cyan-accent/50 focus:border-cyan-accent text-off-white placeholder-slate-muted transition-all outline-none"
+            className="w-full px-4 py-3 bg-white border border-navy-border rounded-xl focus:ring-2 focus:ring-cyan-accent/50 focus:border-cyan-accent text-[#111318] placeholder-[#6B7280] transition-all outline-none disabled:bg-gray-100 disabled:text-gray-500"
             placeholder="https://example.com"
             value={url}
             onChange={(e) => { setUrl(e.target.value); setActivePreset(null); }}
@@ -170,7 +170,7 @@ export const ExperimentForm: React.FC<ExperimentFormProps> = ({ onSubmit, isLoad
           </label>
           <textarea
             id="claim"
-            className="w-full px-4 py-3 bg-navy-bg border border-navy-border rounded-xl focus:ring-2 focus:ring-cyan-accent/50 focus:border-cyan-accent text-off-white placeholder-slate-muted min-h-[100px] transition-all outline-none resize-y"
+            className="w-full px-4 py-3 bg-white border border-navy-border rounded-xl focus:ring-2 focus:ring-cyan-accent/50 focus:border-cyan-accent text-[#111318] placeholder-[#6B7280] min-h-[100px] transition-all outline-none resize-y disabled:bg-gray-100 disabled:text-gray-500"
             placeholder="e.g. Free shipping on orders over $50"
             value={claim}
             onChange={(e) => { setClaim(e.target.value); setActivePreset(null); }}
@@ -187,7 +187,7 @@ export const ExperimentForm: React.FC<ExperimentFormProps> = ({ onSubmit, isLoad
             id="attachment"
             type="file"
             accept="image/png, image/jpeg, image/webp"
-            className="w-full px-4 py-2.5 bg-navy-bg border border-navy-border rounded-xl focus:ring-2 focus:ring-cyan-accent/50 focus:border-cyan-accent text-sm text-off-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-cyan-accent/20 file:text-cyan-accent hover:file:bg-cyan-accent/30 file:transition-colors file:cursor-pointer outline-none transition-all cursor-pointer"
+            className="w-full px-4 py-2.5 bg-white border border-navy-border rounded-xl focus:ring-2 focus:ring-cyan-accent/50 focus:border-cyan-accent text-[#111318] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-cyan-accent/20 file:text-cyan-accent hover:file:bg-cyan-accent/30 file:transition-colors file:cursor-pointer outline-none transition-all cursor-pointer disabled:bg-gray-100 disabled:text-gray-500"
             onChange={(e) => {
               const file = e.target.files?.[0] || null;
               setAttachment(file);
@@ -201,17 +201,17 @@ export const ExperimentForm: React.FC<ExperimentFormProps> = ({ onSubmit, isLoad
             Execution Mode
           </label>
           <div className="relative">
-            <select
+             <select
               id="mode"
-              className="w-full px-4 py-3 bg-navy-bg border border-navy-border rounded-xl focus:ring-2 focus:ring-cyan-accent/50 focus:border-cyan-accent text-off-white transition-all outline-none appearance-none cursor-pointer"
+              className="w-full px-4 py-3 bg-white border border-navy-border rounded-xl focus:ring-2 focus:ring-cyan-accent/50 focus:border-cyan-accent text-[#111318] transition-all outline-none appearance-none cursor-pointer disabled:bg-gray-100 disabled:text-gray-500"
               value={mode}
               onChange={(e) => setMode(e.target.value as ExecutionMode)}
               disabled={isLoading}
             >
-              <option value="CONTROLLED" className="bg-navy-bg">CONTROLLED (Local / Mock Environment)</option>
-              <option value="AUTHORIZED_LIVE" className="bg-navy-bg">AUTHORIZED_LIVE (Real Public Website)</option>
+              <option value="CONTROLLED" className="bg-white text-[#111318]">CONTROLLED (Local / Mock Environment)</option>
+              <option value="AUTHORIZED_LIVE" className="bg-white text-[#111318]">AUTHORIZED_LIVE (Real Public Website)</option>
             </select>
-            <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-slate-muted">
+            <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-[#6B7280]">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
               </svg>
