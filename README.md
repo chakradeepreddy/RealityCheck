@@ -3,7 +3,7 @@ Don't just read the claim. Run it.
 RealityCheck is a browser verification system that turns website claims into controlled, replayable experiments and determines whether they are actually true.
 AI proposes. Browser observes. Code decides.
 
-💡 The Idea
+💡 The Idea:
 Websites make claims like:
 - “Free shipping above ₹999”
 - “Buy 3 and get 10% off”
